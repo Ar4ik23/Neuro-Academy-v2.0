@@ -9,8 +9,14 @@
 ## 2. Course Discovery & Learning
 1. User browses the Course Catalog.
 2. User selects a Course.
-3. System checks for an active `AccessGrant`.
-4. If authorized, User views Modules and starts a Lesson.
+
+### Enrollment & Access
+1. User selects a course.
+2. System checks `Enrollment`.
+3. If not enrolled, user sees "Purchase" button.
+4. After purchase (Telegram Stars/TON), an `Enrollment` record is created.
+
+4. User views Modules and starts a Lesson.
 5. User consumes `LessonBlocks`.
 6. Lesson is marked as "Completed" upon reading all blocks or passing a Quiz.
 

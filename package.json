@@ -12,7 +12,7 @@
     "dev:admin": "npm run dev -w apps/admin",
     "build": "npm run build -ws",
     "lint": "npm run lint -ws",
-    "db:generate": "npm run generate -w packages/database",
-    "db:migrate": "npm run migrate -w packages/database"
+    "db:generate": "npm run prisma:generate -w packages/database",
+    "db:migrate": "npm run prisma:migrate -w packages/database"
   }
 }

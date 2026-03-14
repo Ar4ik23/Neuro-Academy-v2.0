@@ -1,35 +1,35 @@
 # Domain Model: Neuro-Academy v2.0
 
-## 1. Core Entities
-### User
-- Identity (Telegram ID)
-- Profile (Name, Bio)
-- Role (User, Admin)
+## 1. Curriculum Domain
+The foundational structure of learning content.
 
-### Educational Content
-- **Course**: Title, Image, Price, Category.
-- **Module**: Thematic grouping of lessons within a course.
-- **Lesson**: The primary learning unit.
-- **LessonBlock**: Content inside a lesson (Text, Video, Quote, etc.).
+- **Course**: The top-level product. Contains marketing metadata (price, thumbnail, description).
+- **Module**: Logical grouping (e.g., "Week 1", "Advanced Techniques").
+- **Lesson**: The actionable learning page.
+- **LessonBlock**: Atomic content unit. Types: `TEXT`, `VIDEO`, `IMAGE`, `QUIZ_SUMMARY`, etc.
 
-### Assessment
-- **Quiz**: Collection of questions tied to a lesson.
-- **QuizQuestion**: Text + Options.
-- **QuizAttempt**: Score, Time, Status.
+## 2. Learning Domain
+Tracks the interaction between a User and the Curriculum.
 
-## 2. Business Logic Entities
-### Enrollment / Access
-- **AccessGrant**: Links a User to a Course.
-- **EnrollmentType**: TRIAL, PURCHASED, ADMIN_GRANT.
+- **Enrollment**: The "Permission" entity. A user must have an active enrollment to access a course.
+  - *Types*: `TRIAL`, `PURCHASED`, `ADMIN_GRANT`.
+- **LessonProgress**: Tracks completion of individual lessons.
+- **CourseProgress**: Aggregated status (percentage) calculated from completed lessons.
 
-### Progress Tracking
-- **LessonProgress**: COMPLETED, IN_PROGRESS.
-- **CourseProgress**: Cumulative % calculation.
+## 3. Assessment Domain
+Verification of knowledge.
 
-### Financials
-- **Purchase**: Payment record, status, provider transaction ID.
-- **PriceAdjustment**: Discounts/Campaigns (future).
+- **Quiz**: A set of questions attached to a lesson.
+- **QuizQuestion**: A prompt with multiple choice `QuizOption`.
+- **QuizAttempt**: A record of a user's answers and calculated score. Passing a quiz usually triggers `LessonProgress: COMPLETED`.
 
-### User Interaction
-- **Note**: User's private text tied to a lesson.
-- **AIRequest**: Logging for the AI Assistant's context and response.
+## 4. Financial & Social Domain
+External and supportive logic.
+
+- **Purchase**: Immutable record of a Telegram Star or TON transaction. Triggers `Enrollment`.
+- **Note**: User-specific annotations tied to specific lesson context.
+- **AIRequest**: Logging for selection-based AI helper interactions.
+
+## 5. User Domain
+- **User**: Telegram-verified identity.
+- **Role**: `USER` (Student) or `ADMIN` (Manager).

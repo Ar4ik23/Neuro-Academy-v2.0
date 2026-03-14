@@ -37,38 +37,41 @@ enum ProgressStatus {
 }
 
 model User {
-  id            String          @id @default(uuid())
-  telegramId    BigInt          @unique
-  username      String?
-  firstName     String
-  lastName      String?
-  role          UserRole        @default(USER)
-  enrollments   Enrollment[]
+  id             String           @id @default(uuid())
+  telegramId     BigInt           @unique
+  username       String?
+  firstName      String
+  lastName       String?
+  role           UserRole         @default(USER)
+  enrollments    Enrollment[]
   courseProgress CourseProgress[]
   lessonProgress LessonProgress[]
-  quizAttempts  QuizAttempt[]
-  purchases     Purchase[]
-  notes         Note[]
-  aiRequests    AIRequest[]
-  certificates  Certificate[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  quizAttempts   QuizAttempt[]
+  purchases      Purchase[]
+  notes          Note[]
+  aiRequests     AIRequest[]
+  certificates   Certificate[]
+  accessGrants   AccessGrant[]
+  fileAssets     FileAsset[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
 model Course {
-  id          String       @id @default(uuid())
-  title       String
-  description String?
-  thumbnail   String?
-  published   Boolean      @default(false)
-  price       Decimal      @default(0.0)
-  modules     Module[]
-  enrollments Enrollment[]
-  progress    CourseProgress[]
-  purchases   Purchase[]
+  id           String           @id @default(uuid())
+  title        String
+  slug         String           @unique
+  description  String?
+  thumbnail    String?
+  published    Boolean          @default(false)
+  price        Decimal          @default(0.0)
+  modules      Module[]
+  enrollments  Enrollment[]
+  progress     CourseProgress[]
+  purchases    Purchase[]
   certificates Certificate[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 }
 
 model Module {
@@ -225,4 +228,23 @@ model Certificate {
   course         Course   @relation(fields: [courseId], references: [id])
   certificateUrl String
   issuedAt       DateTime @default(now())
+}
+
+model AccessGrant {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  resource  String   // e.g., "course", "admin_panel"
+  action    String   // e.g., "read", "write", "audit"
+  createdAt DateTime @default(now())
+}
+
+model FileAsset {
+  id        String   @id @default(uuid())
+  url       String
+  fileType  String
+  size      Int
+  ownerId   String?
+  owner     User?    @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
 }

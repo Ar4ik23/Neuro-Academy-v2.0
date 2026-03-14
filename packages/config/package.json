@@ -1,0 +1,7 @@
+{
+  "name": "@neuro-academy/config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "description": "Shared configurations for Neuro-Academy v2.0"
+}

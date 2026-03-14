@@ -8,8 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w apps/web & npm run start:dev -w apps/api",
-    "build": "npm run build -w apps/web && npm run build -w apps/api",
-    "lint": "npm run lint -w apps/web && npm run lint -w apps/api"
+    "dev:web": "npm run dev -w apps/web-miniapp",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:admin": "npm run dev -w apps/admin",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces"
   }
 }

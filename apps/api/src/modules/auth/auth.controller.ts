@@ -1,12 +1,14 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LoginDto, AuthResponseDto } from '@neuro-academy/types';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('validate')
-  async validate(@Body('initData') initData: string) {
-    return this.authService.login(initData);
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
+    return this.authService.login(loginDto.initData);
   }
 }

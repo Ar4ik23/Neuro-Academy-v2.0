@@ -5,8 +5,8 @@ import { ProgressModule } from '../progress/progress.module';
 
 @Module({
   imports: [ProgressModule],
-  providers: [QuizzesService],
   controllers: [QuizzesController],
+  providers: [QuizzesService],
   exports: [QuizzesService],
 })
 export class QuizzesModule {}

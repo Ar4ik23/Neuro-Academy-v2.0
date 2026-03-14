@@ -1,27 +1,35 @@
-# Domain Model
+# Domain Model: Neuro-Academy v2.0
 
-## Core Education Entities
-- **Course**: Title, description, slug, thumbnail, price, published status.
-- **Module**: Grouping of lessons, order, description.
-- **Lesson**: Title, order, module ID.
-- **LessonBlock**: Content type (text, video, etc.), JSON payload, order.
-- **FileAsset**: URL, file type, size, owner ID.
+## 1. Core Entities
+### User
+- Identity (Telegram ID)
+- Profile (Name, Bio)
+- Role (User, Admin)
 
-## User & Access
-- **User**: Telegram ID, username, roles (user, admin), profile data.
-- **Enrollment**: Link between User and Course, access type (trial, paid, admin), expiry date.
-- **AccessGrant**: Granular permission level (read, write, audit).
+### Educational Content
+- **Course**: Title, Image, Price, Category.
+- **Module**: Thematic grouping of lessons within a course.
+- **Lesson**: The primary learning unit.
+- **LessonBlock**: Content inside a lesson (Text, Video, Quote, etc.).
 
-## Progress & Assessment
-- **LessonProgress**: Link between User and Lesson, status (unlocked, completed), timestamp.
-- **CourseProgress**: Aggregated metrics (percentage, current module).
-- **Quiz**: Title, lesson ID, passing score requirements.
-- **QuizQuestion**: Text, type (single, multiple), order.
-- **QuizOption**: Text, correctness, explanation.
-- **QuizAttempt**: Score, user ID, quiz ID, pass status, start/end time.
+### Assessment
+- **Quiz**: Collection of questions tied to a lesson.
+- **QuizQuestion**: Text + Options.
+- **QuizAttempt**: Score, Time, Status.
 
-## Finance & Interaction
-- **Purchase**: Amount, currency, provider (Telegram Stars, TON), status, transaction ID.
-- **Certificate**: Unique code, generation date, PDF link.
-- **Note**: User ID, lesson ID, text, context selection.
-- **AIRequest**: User ID, prompt, AI response, token usage, context.
+## 2. Business Logic Entities
+### Enrollment / Access
+- **AccessGrant**: Links a User to a Course.
+- **EnrollmentType**: TRIAL, PURCHASED, ADMIN_GRANT.
+
+### Progress Tracking
+- **LessonProgress**: COMPLETED, IN_PROGRESS.
+- **CourseProgress**: Cumulative % calculation.
+
+### Financials
+- **Purchase**: Payment record, status, provider transaction ID.
+- **PriceAdjustment**: Discounts/Campaigns (future).
+
+### User Interaction
+- **Note**: User's private text tied to a lesson.
+- **AIRequest**: Logging for the AI Assistant's context and response.

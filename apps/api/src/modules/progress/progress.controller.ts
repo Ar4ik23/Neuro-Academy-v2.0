@@ -1,20 +1,20 @@
-import { Controller, Get, Post, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { ProgressService } from './progress.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ProgressStatus } from '@prisma/client';
 
 @Controller('progress')
+@UseGuards(JwtAuthGuard)
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
 
-  @Get(':courseId')
+  @Get('course/:courseId')
   async getCourseProgress(@Req() req: any, @Param('courseId') courseId: string) {
-    // Note: Request object will have user populated by an AuthGuard in the future
-    const userId = req.user.sub; 
-    return this.progressService.getCourseProgress(userId, courseId);
+    return this.progressService.getCourseProgress(req.user.id, courseId);
   }
 
   @Post('lesson/:lessonId/complete')
-  async markComplete(@Req() req: any, @Param('lessonId') lessonId: string) {
-    const userId = req.user.sub;
-    return this.progressService.markLessonComplete(userId, lessonId);
+  async completeLesson(@Req() req: any, @Param('lessonId') lessonId: string) {
+    return this.progressService.updateLessonProgress(req.user.id, lessonId, ProgressStatus.COMPLETED);
   }
 }

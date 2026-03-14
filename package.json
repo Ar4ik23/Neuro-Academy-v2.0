@@ -1,17 +1,18 @@
 {
-  "name": "neuro-academy-v2.0",
+  "name": "neuro-academy-v2",
   "version": "1.0.0",
   "private": true,
-  "description": "Neuro-Academy v2.0 - Telegram Mini App Educational Platform",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev:web": "npm run dev -w apps/web-miniapp",
     "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web-miniapp",
     "dev:admin": "npm run dev -w apps/admin",
-    "build": "npm run build --workspaces",
-    "lint": "npm run lint --workspaces"
+    "build": "npm run build -ws",
+    "lint": "npm run lint -ws",
+    "db:generate": "npm run generate -w packages/database",
+    "db:migrate": "npm run migrate -w packages/database"
   }
 }

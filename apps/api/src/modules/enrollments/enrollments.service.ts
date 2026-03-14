@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EnrollmentType } from '@prisma/client';
 
@@ -17,6 +17,7 @@ export class EnrollmentsService {
         ],
       },
     });
+
     return !!enrollment;
   }
 
@@ -31,10 +32,11 @@ export class EnrollmentsService {
     });
   }
 
-  async getUserEnrollments(userId: string) {
-    return this.prisma.enrollment.findMany({
-      where: { userId },
-      include: { course: true },
-    });
+  async validateAccess(userId: string, courseId: string) {
+    const hasAccess = await this.checkAccess(userId, courseId);
+    if (!hasAccess) {
+      throw new ForbiddenException('No active enrollment for this course');
+    }
+    return true;
   }
 }

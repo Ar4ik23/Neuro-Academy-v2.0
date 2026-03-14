@@ -3,8 +3,8 @@ import { NotesService } from './notes.service';
 import { NotesController } from './notes.controller';
 
 @Module({
-  providers: [NotesService],
   controllers: [NotesController],
+  providers: [NotesService],
   exports: [NotesService],
 })
 export class NotesModule {}

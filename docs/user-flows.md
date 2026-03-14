@@ -1,40 +1,29 @@
-# User Flows
+# User Flows: Neuro-Academy v2.0
 
-## 1. Onboarding & Authentication
-1. User opens Telegram Mini App via bot or link.
-2. App reads `window.Telegram.WebApp.initData`.
-3. Frontend sends initData to `POST /api/auth/validate`.
-4. Backend verifies hash, finds or creates User, returns JWT.
-5. User enters Dashboard.
+## 1. Authorization & Onboarding
+1. User enters the Telegram Bot.
+2. Bot provides a button to open the Mini App.
+3. Mini App initializes, validates `initData` with the API.
+4. User is auto-logged in (or created in the DB).
 
-## 2. Course Discovery & Enrollment
-1. User browses Core Catalog.
-2. User clicks on a Course.
-3. System checks for active `Enrollment`.
-4. If not enrolled, User sees "Lock" icon or Pricing.
-5. User completes payment flow (Telegram Stars).
-6. Success webhook creates `Enrollment`.
-7. User can now access Modules.
+## 2. Course Discovery & Learning
+1. User browses the Course Catalog.
+2. User selects a Course.
+3. System checks for an active `AccessGrant`.
+4. If authorized, User views Modules and starts a Lesson.
+5. User consumes `LessonBlocks`.
+6. Lesson is marked as "Completed" upon reading all blocks or passing a Quiz.
 
-## 3. Learning Path
-1. User opens a Lesson.
-2. Frontend fetches `LessonBlocks` for the lesson.
-3. User interacts with blocks (reads text, watches video).
-4. User clicks "Mark as Complete".
-5. Request sent to `POST /api/progress/lesson/:id/complete`.
-6. System checks if this was the last lesson in a Module/Course.
-7. If Course complete, `Certificate` is generated.
+## 3. Purchase Flow (Stars/TON)
+1. User selects "Buy Course".
+2. API generates a Telegram Stars invoice.
+3. User pays within the Telegram interface.
+4. Telegram Webhook notifies the API.
+5. API creates a `Purchase` record and grants Course Access.
 
-## 4. Assessment (Quiz)
-1. Lesson ends with a mandatory Quiz.
-2. User answers questions.
-3. Submission to `POST /api/quizzes/:id/submit`.
-4. If passed, Lesson marked as complete.
-5. If failed, User can re-attempt.
-
-## 5. Interaction (Notes & AI)
-1. User highlights text in a lesson.
-2. User selects "Ask AI" or "Create Note".
-3. AI flow: Prompt sent to `POST /api/ai/explain`, response displayed.
-4. Note flow: text saved to `POST /api/notes`.
-5. User can view all notes in "My Notes" section.
+## 4. AI Assistant Interaction
+1. User highlights text within a Lesson.
+2. User clicks "Explain" or "Summarize".
+3. TWA sends the highlighted text + lesson context to the API.
+4. API calls the LLM and returns the response.
+5. Response is displayed in an overlay.

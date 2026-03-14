@@ -1,65 +1,79 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
-import { UsersService } from '../users/users.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuthResponseDto, TelegramUser } from '@neuro-academy/types';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 
-  validateTelegramData(initData: string, botToken: string): any {
+  async validateTelegramData(initData: string): Promise<TelegramUser> {
+    const BOT_TOKEN = process.env.BOT_TOKEN;
+    if (!BOT_TOKEN) {
+      throw new Error('BOT_TOKEN is not defined in environment variables');
+    }
+
     const urlParams = new URLSearchParams(initData);
     const hash = urlParams.get('hash');
     urlParams.delete('hash');
 
-    const dataCheckString = Array.from(urlParams.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
+    const params = Array.from(urlParams.entries())
       .map(([key, value]) => `${key}=${value}`)
+      .sort()
       .join('\n');
 
     const secretKey = crypto
       .createHmac('sha256', 'WebAppData')
-      .update(botToken)
+      .update(BOT_TOKEN)
       .digest();
 
     const calculatedHash = crypto
       .createHmac('sha256', secretKey)
-      .update(dataCheckString)
+      .update(params)
       .digest('hex');
 
     if (calculatedHash !== hash) {
-      throw new UnauthorizedException('Invalid hash');
+      throw new UnauthorizedException('Invalid Telegram hash');
     }
 
     const userStr = urlParams.get('user');
-    return userStr ? JSON.parse(userStr) : null;
-  }
-
-  async login(initData: string) {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    if (!botToken) {
-      throw new Error('TELEGRAM_BOT_TOKEN is not defined');
+    if (!userStr) {
+      throw new UnauthorizedException('User data missing in initData');
     }
 
-    const tgUser = this.validateTelegramData(initData, botToken);
-    
-    let user = await this.usersService.findByTelegramId(tgUser.id);
-    if (!user) {
-      user = await this.usersService.create({
-        telegramId: tgUser.id,
+    return JSON.parse(userStr) as TelegramUser;
+  }
+
+  async login(initData: string): Promise<AuthResponseDto> {
+    const tgUser = await this.validateTelegramData(initData);
+
+    const user = await this.prisma.user.upsert({
+      where: { telegramId: BigInt(tgUser.id) },
+      update: {
         username: tgUser.username,
         firstName: tgUser.first_name,
         lastName: tgUser.last_name,
-      });
-    }
+      },
+      create: {
+        telegramId: BigInt(tgUser.id),
+        username: tgUser.username,
+        firstName: tgUser.first_name,
+        lastName: tgUser.last_name,
+      },
+    });
 
-    const payload = { sub: user.id, telegramId: user.telegramId, role: user.role };
+    const payload = { sub: user.id, telegramId: user.telegramId.toString(), role: user.role };
+    
     return {
-      access_token: this.jwtService.sign(payload),
-      user,
+      user: {
+        ...user,
+        telegramId: user.telegramId.toString(),
+      },
+      token: this.jwtService.sign(payload),
     };
   }
 }

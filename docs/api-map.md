@@ -1,35 +1,30 @@
-# API Map
+# API Map: Neuro-Academy v2.0
 
-Root: `/api`
+## Base URL: `/api`
 
-## Auth Domain
-- `POST /auth/validate` - Validate TWA initData, return JWT.
-- `GET /auth/me` - Get current user profile.
+### Auth
+- `POST /auth/login` (body: initData) -> JWT
 
-## Content Domain (Public/Authorized)
-- `GET /courses` - List published courses.
-- `GET /courses/:id` - Detailed course info + modules list.
-- `GET /modules/:id/lessons` - List lessons in a module.
-- `GET /lessons/:id` - Get lesson content (blocks).
+### Courses
+- `GET /courses` (list of published courses)
+- `GET /courses/:id` (full course details with modules/lessons summary)
 
-## Progress Domain (Private)
-- `GET /progress/:courseId` - Get course completion status.
-- `POST /progress/lesson/:id/complete` - Mark lesson as finished.
+### Lessons
+- `GET /lessons/:id` (retrieves all blocks and quiz metadata)
+- `POST /lessons/:id/complete` (marks lesson as done)
 
-## Quiz Domain (Private)
-- `GET /quizzes/:id` - Get quiz questions.
-- `POST /quizzes/:id/submit` - Submit answers and get result.
+### Progress
+- `GET /progress/:courseId` (percentage and list of completed lessons)
 
-## Social & AI (Private)
-- `POST /notes` - Create a note.
-- `GET /notes/:lessonId` - Get notes for a lesson.
-- `POST /ai/explain` - Send text for AI explanation.
+### Quizzes
+- `GET /quizzes/:id` (questions)
+- `POST /quizzes/:id/submit` (answers) -> score/status
 
-## Payments (Private)
-- `POST /payments/create-invoice` - Create Telegram Stars invoice.
-- `POST /payments/webhook` - System webhook for payment updates.
+### Admin (Restricted)
+- `POST /admin/courses/create`
+- `PATCH /admin/lessons/:id`
+- `GET /admin/analytics`
 
-## Admin (Admin Only)
-- `POST /admin/courses` - Create/Update course.
-- `GET /admin/analytics` - System growth metrics.
-- `POST /admin/users/grant-access` - Manual enrollment.
+### Payments
+- `POST /payments/invoice` (creates Stars invoice)
+- `POST /payments/webhook` (incoming payment notification)

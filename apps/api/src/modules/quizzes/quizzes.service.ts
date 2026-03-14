@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { QuizDto, QuizResultDto, QuizSubmissionDto } from '@neuro-academy/types';
 import { ProgressService } from '../progress/progress.service';
+import { ProgressStatus } from '@prisma/client';
 
 @Injectable()
 export class QuizzesService {
@@ -9,39 +11,59 @@ export class QuizzesService {
     private progressService: ProgressService,
   ) {}
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<QuizDto> {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id },
       include: {
         questions: {
+          orderBy: { order: 'asc' },
           include: {
-            options: true,
+            options: {
+              select: { id: true, text: true },
+            },
           },
         },
       },
     });
 
-    if (!quiz) throw new NotFoundException('Quiz not found');
-    return quiz;
+    if (!quiz) {
+      throw new NotFoundException('Quiz not found');
+    }
+
+    return quiz as any;
   }
 
-  async submitAttempt(userId: string, quizId: string, answers: { questionId: string; optionId: string }[]) {
-    const quiz = await this.findOne(quizId);
-    
+  async submit(userId: string, quizId: string, submission: QuizSubmissionDto): Promise<QuizResultDto> {
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: {
+        questions: {
+          include: { options: true },
+        },
+      },
+    });
+
+    if (!quiz) {
+      throw new NotFoundException('Quiz not found');
+    }
+
     let correctCount = 0;
+    const totalQuestions = quiz.questions.length;
+
     for (const question of quiz.questions) {
-      const userAnswer = answers.find(a => a.questionId === question.id);
-      const correctOption = question.options.find(o => o.isCorrect);
-      
-      if (userAnswer && userAnswer.optionId === correctOption?.id) {
+      const userAnswer = submission.answers.find((a: { questionId: string; optionId: string }) => a.questionId === question.id);
+      const correctOption = question.options.find((o: { isCorrect: boolean }) => o.isCorrect);
+
+      if (userAnswer && correctOption && userAnswer.optionId === correctOption.id) {
         correctCount++;
       }
     }
 
-    const score = Math.round((correctCount / quiz.questions.length) * 100);
+    const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
     const isPassed = score >= quiz.passingScore;
 
-    const attempt = await this.prisma.quizAttempt.create({
+    // Record attempt
+    await this.prisma.quizAttempt.create({
       data: {
         userId,
         quizId,
@@ -50,11 +72,16 @@ export class QuizzesService {
       },
     });
 
+    // If passed, mark associated lesson as completed
     if (isPassed) {
-      // Mark the associated lesson as complete
-      await this.progressService.markLessonComplete(userId, quiz.lessonId);
+      await this.progressService.updateLessonProgress(userId, quiz.lessonId, ProgressStatus.COMPLETED);
     }
 
-    return attempt;
+    return {
+      score,
+      isPassed,
+      correctAnswers: correctCount,
+      totalQuestions,
+    };
   }
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { BottomNav } from "@/components/navigation/BottomNav";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -30,9 +31,10 @@ export default function RootLayout({
               Neuro-Academy
             </div>
           </header>
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto pb-[70px]">
             {children}
           </main>
+          <BottomNav />
         </div>
       </body>
     </html>

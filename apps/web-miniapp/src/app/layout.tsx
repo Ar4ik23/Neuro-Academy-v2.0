@@ -23,8 +23,17 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body dir="ltr" className={`${inter.className} bg-slate-950 text-slate-50 antialiased selection:bg-blue-500/30`}>
-        {children}
+      <body dir="ltr" className={`${inter.className} bg-slate-900 text-slate-50 antialiased flex items-center justify-center min-h-screen`}>
+        <div className="w-full max-w-[480px] h-screen bg-slate-950 flex flex-col relative overflow-hidden shadow-2xl border-x border-white/5">
+          <header className="px-6 py-4 border-b border-white/10 shrink-0 backdrop-blur-md bg-white/5">
+            <div className="text-[10px] font-black tracking-[0.2em] text-blue-400 uppercase">
+              Neuro-Academy
+            </div>
+          </header>
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

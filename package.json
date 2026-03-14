@@ -1,0 +1,15 @@
+{
+  "name": "neuro-academy-v2.0",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Neuro-Academy v2.0 - Telegram Mini App Educational Platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/web & npm run start:dev -w apps/api",
+    "build": "npm run build -w apps/web && npm run build -w apps/api",
+    "lint": "npm run lint -w apps/web && npm run lint -w apps/api"
+  }
+}

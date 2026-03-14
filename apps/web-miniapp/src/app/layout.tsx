@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
-  title: "Neuro-Academy",
-  description: "Educational Platform for Telegram",
+  title: "Neuro Academy | TWA",
+  description: "Advanced Cognitive Training Platform",
 };
 
 export default function RootLayout({
@@ -13,17 +16,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <Script
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
       </head>
-      <body>
-        <main className="min-h-screen bg-gray-50">
-          {children}
-        </main>
+      <body dir="ltr" className={`${inter.className} bg-slate-950 text-slate-50 antialiased selection:bg-blue-500/30`}>
+        {children}
       </body>
     </html>
   );

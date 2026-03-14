@@ -1,37 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useTelegram } from './useTelegram';
+import { useEffect, useState } from 'react';
 import { apiClient } from '../services/api';
-import { AuthResponseDto, UserDto } from '@neuro-academy/types';
+import { AuthResponseDto } from '@neuro-academy/types';
 
 export const useAuth = () => {
-  const { initData } = useTelegram();
-  const [user, setUser] = useState<UserDto | null>(null);
+  const [user, setUser] = useState<AuthResponseDto['user'] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const login = useCallback(async () => {
-    if (!initData) return;
-
-    try {
-      setLoading(true);
-      const data = await apiClient.post<AuthResponseDto>('/auth/login', { initData });
-      
-      localStorage.setItem('auth_token', data.token);
-      setUser(data.user);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [initData]);
 
   useEffect(() => {
-    if (initData) {
-      login();
-    }
-  }, [initData, login]);
+    const initAuth = async () => {
+      // 1. Check if we have a token in localStorage
+      const savedToken = localStorage.getItem('auth_token');
+      
+      // 2. Get initData from Telegram WebApp
+      const tg = (window as any).Telegram?.WebApp;
+      const initData = tg?.initData || '';
 
-  return { user, loading, error, refresh: login };
+      if (!initData && !savedToken) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await apiClient.post<AuthResponseDto>('/auth/login', {
+          initData: initData || 'DEBUG_DATA' // Fallback for local dev if needed
+        });
+
+        const { token, user: loggedInUser } = response.data;
+        localStorage.setItem('auth_token', token);
+        setUser(loggedInUser);
+      } catch (error) {
+        console.error('Auth failed', error);
+        localStorage.removeItem('auth_token');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, []);
+
+  return { user, loading };
 };

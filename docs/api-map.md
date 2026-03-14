@@ -1,30 +1,75 @@
 # API Specification: Neuro-Academy v2.0
 
-## 1. Authentication (`/auth`)
-- **`POST /auth/login`**: Validates Telegram `initData`. Returns JWT.
-  - *Response*: `{ accessToken: string, user: UserDto }`
+## 1. General Principles
+- **Base URL**: `/api` (Backend running on port 3001).
+- **Format**: All requests/responses use JSON.
+- **Auth**: Bearer Token (JWT) in `Authorization` header.
 
-## 2. Curriculum (`/courses`, `/lessons`)
-- **`GET /courses`**: List of all published courses.
-- **`GET /courses/:id`**: Detailed course syllabus including modules and lesson summaries.
-- **`GET /lessons/:id`**: Complete lesson content (blocks) + Quiz summary.
-  - *Internal*: Validates that user has an active `Enrollment`.
+## 2. Authentication Domain (`/auth`)
+Handles identity verification via Telegram.
 
-## 3. Progress & Learning (`/progress`, `/enrollments`)
-- **`GET /progress/:courseId`**: Returns user's course completion percentage.
-- **`POST /progress/lesson/:id/complete`**: Marks a lesson as finished. Recalculates course progress.
-- **`GET /enrollments`**: List of user-owned courses and their types (TRIAL/PURCHASED).
+### 2.1 Login
+- **Endpoint**: `POST /auth/login`
+- **Body**: `{ initData: string }` (The string provided by TG Webview).
+- **Returns**: `{ accessToken: string, user: UserDto }`.
+- **Logic**: Backend validates the signature against the `BOT_TOKEN`.
 
-## 4. Assessments (`/quizzes`)
-- **`GET /quizzes/:id`**: Returns quiz questions (blocks).
-- **`POST /quizzes/:id/submit`**: Submits user answers. Returns score.
-  - *Side Effect*: If `score >= passingScore`, marks linked lesson as completed.
+## 3. Curriculum Domain (`/courses`, `/lessons`)
+Retrieves structured educational content.
 
-## 5. Social & AI (`/notes`, `/ai`)
-- **`POST /notes`**: Create a new personal annotation.
-- **`GET /notes/:lessonId`**: Retrieve personal notes for a specific lesson.
-- **`POST /ai/explain`**: Request an AI summary of highlighted text within a lesson context.
+### 3.1 List Courses
+- **Endpoint**: `GET /courses`
+- **Returns**: `CourseDto[]` (Only `published: true` courses).
 
-## 6. Financials (`/payments`)
-- **`POST /payments/invoice/:courseId`**: Generates a Telegram Star payment invoice.
-- **`POST /payments/webhook`**: Handler for provider-sent transaction updates.
+### 3.2 Course Detail
+- **Endpoint**: `GET /courses/:id`
+- **Returns**: `CourseDetailDto` (Incl. Modules and Lesson summaries).
+
+### 3.3 Lesson Content
+- **Endpoint**: `GET /lessons/:id`
+- **Returns**: `LessonDetailDto` (Incl. ordered `LessonBlocks` and Quiz metadata).
+- **Constraint**: Requires active `Enrollment` for the parent course.
+
+## 4. Learning Domain (`/progress`, `/enrollments`)
+Tracks the user's educational journey.
+
+### 4.1 Get Course Progress
+- **Endpoint**: `GET /progress/:courseId`
+- **Returns**: `CourseProgressDto`.
+
+### 4.2 Complete Lesson
+- **Endpoint**: `POST /progress/lesson/:id/complete`
+- **Side Effects**: Sets `LessonProgress: COMPLETED`, recalculates `CourseProgress.percentage`.
+
+### 4.3 My Enrollments
+- **Endpoint**: `GET /enrollments`
+- **Returns**: `EnrollmentDto[]` (Courses user has access to).
+
+## 5. Assessment Domain (`/quizzes`)
+### 5.1 Get Quiz
+- **Endpoint**: `GET /quizzes/:id`
+- **Returns**: `QuizDto` (Questions and options).
+
+### 5.2 Submit Quiz
+- **Endpoint**: `POST /quizzes/:id/submit`
+- **Body**: `{ answers: { questionId: string, optionId: string }[] }`
+- **Returns**: `{ passed: boolean, score: number }`.
+
+## 6. Financial Domain (`/payments`)
+### 6.1 Create Invoice
+- **Endpoint**: `POST /payments/invoice/:courseId`
+- **Returns**: `{ invoiceLink: string }` (Telegram Stars invoice).
+
+### 6.2 Provider Webhook
+- **Endpoint**: `POST /payments/webhook`
+- **Logic**: Atomic update: Saves `Purchase` record -> Creates `Enrollment`.
+
+## 7. Social Domain (`/notes`, `/ai`)
+### 7.1 Notes Management
+- **`GET /notes/:lessonId`**: List user's notes for a lesson.
+- **`POST /notes`**: Save a new note.
+
+### 7.2 AI Helper
+- **Endpoint**: `POST /ai/explain`
+- **Body**: `{ contextText: string, prompt: string }`
+- **Returns**: `{ response: string }`.

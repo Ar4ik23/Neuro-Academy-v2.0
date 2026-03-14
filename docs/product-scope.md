@@ -1,25 +1,37 @@
 # Product Scope: Neuro-Academy v2.0
 
-## 1. Objective
-To provide a premium, seamless educational experience within Telegram, leveraging its social graph and native UI capabilities. Neuro-Academy v2.0 aims to be the "Gold Standard" for Telegram Mini Apps in the EdTech space.
+## 1. Project Vision
+Neuro-Academy v2.0 is a premium educational platform engineered specifically for the Telegram Mini App (TWA) ecosystem. It leverages Telegram's native functionality to deliver a high-quality, interactive learning experience that feels native to the user's messaging environment.
 
-## 2. Core Features (MVP)
-- **TWA Interface**: A high-end, responsive web application inside Telegram.
-- **Course Catalog**: Discoverable curriculum with detailed module overviews.
-- **Lesson System**: Rich media lessons (Video, Text, Attachments) with sequential progress.
-- **Enrollment Flow**: Decoupled access management supporting trials and purchases via Telegram Stars.
-- **Quizzes**: Knowledge checkpoints with automated scoring.
-- **AI Selection Assistant**: Instant help for complex terms directly in the lesson view.
-- **User Progress**: Real-time tracking of personal curriculum journey.
+## 2. Target Audience
+- **Students**: Seeking advanced knowledge in neuro-technologies and personal growth through a convenient mobile-first interface.
+- **Instructors/Admins**: Managing curriculum, tracking student progress, and analyzing engagement through a specialized dashboard.
 
-## 3. Future Roadmap
-- **Certificates**: Automatically generated PDF certificates upon course completion.
-- **Global AI Tutor**: Conversational AI trained on the specific course syllabus.
-- **Social Learning**: Comments, public progress shares, and leaderboard (Star-based).
-- **Gamification**: Badges and achievements for learning streaks.
+## 3. Core Features (MVP)
+### 3.1 Course Discovery & Management
+- **Universal Catalog**: A sleek, card-based interface for browsing available neuro-courses.
+- **Dynamic Curriculum**: Courses divided into modules and lessons with flexible block-based content.
+- **Enrollment Layer**: Decoupled access management allowing for Trial, Purchased, and Admin-granted access.
 
-## 4. Success Metrics
-- **Retention**: % of users returning to complete modules.
-- **Completion Rate**: % of enrollments resulting in a finished course.
-- **AI Engagement**: Number of AI requests per user session.
-- **Financial Conversion**: Sales volume via Telegram Stars.
+### 3.2 Learning Experience
+- **Interactive Lesson Renderer**: Supports multiple content types (Video, Markdown Text, PDF, Quotes, Checklists).
+- **In-Lesson AI Helper**: Selection-based context explanations using LLMs to clarify complex neuro-scientific terms.
+- **Knowledge Assessment**: Integrated quizzes with automatic scoring and progress gating.
+- **Personal Notes**: Encrypted, lesson-specific annotations for students.
+
+### 3.3 Progress & Analytics
+- **Granular Progress Tracking**: Status updates per lesson and aggregated course completion percentage.
+- **Admin Dashboard**: Comprehensive control over content creation, user enrollment management, and financial reporting.
+
+### 3.4 Financials
+- **Telegram Stars Integration**: Native, frictionless payment system for purchasing course access.
+
+## 4. Technical Constraints
+- **Platform**: Must run seamlessly within Telegram (Android, iOS, Desktop).
+- **Design**: Strict adherence to "Aurora Bloom" premium design guidelines (glassmorphism, vibrant gradients).
+- **Performance**: Near-instant loading states and optimized content delivery for mobile networks.
+
+## 5. Non-Functional Requirements
+- **Scalability**: Monorepo structure capable of supporting multiple related platforms (TWA, Admin, API).
+- **Security**: JWT-based authentication validated via Telegram `initData`.
+- **Maintainability**: Strict domain-driven architecture with shared TypeScript types.

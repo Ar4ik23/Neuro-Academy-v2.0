@@ -1,31 +1,43 @@
-# Architecture: Neuro-Academy v2.0
+# Architecture Specification: Neuro-Academy v2.0
 
-## 1. System Vision
-Neuro-Academy v2.0 is designed as a high-performance, modular educational platform strictly integrated within the Telegram Mini App ecosystem. The primary focus is on a superior user experience (premium UI), scalability (monorepo structure), and maintainable domain logic.
+## 1. System Overview
+Neuro-Academy v2.0 is a modern, full-stack monorepo application designed to live within the Telegram ecosystem. It follows a modular architecture that separates business domains from UI representations and infrastructure.
 
-## 2. Monorepo Organization
-We use a workspace-based monorepo to manage applications and shared infrastructure:
+## 2. Monorepo Organization (npm Workspaces)
+The project is structured to maximize code reuse while maintaining strict boundaries between applications and shared logic.
 
-### Applications (`apps/`)
-- **`api/`**: NestJS monolithic-modular backend. Provides RESTful services.
-- **`web-miniapp/`**: Next.js 14 specialized for the Telegram interface. Uses Tailwind CSS and glassmorphism.
-- **`admin/`**: Internal management portal for curriculum and analytics.
+### 2.1 Applications (`apps/`)
+- **`api/` (NestJS)**: The central backbone. Handles all domain logic, persistence via Prisma, and external integrations (Telegram Bot API, Stars).
+- **`web-miniapp/` (Next.js 14)**: The student interface. A high-performance TWA optimized for mobile interaction.
+- **`admin/` (Next.js 14)**: The manager's cockpit. Focused on content management and analytics.
 
-### Shared Packages (`packages/`)
-- **`database/`**: Single source of truth for the Prisma schema and client.
-- **`types/`**: Shared TypeScript contracts (DTOs, Enums) ensures API-Frontend sync.
-- **`ui/`**: Baseline design tokens and reusable low-level components.
-- **`utils/`**: Shared logic (slugification, date formatting, validation).
-- **`config/`**: Unified `tsconfig`, `eslint`, and `tailwind` base settings.
+### 2.2 Shared Packages (`packages/`)
+- **`database/`**: Logic-less layer containing the Prisma schema and generated client. Ensures type-safe DB access across all services.
+- **`types/`**: The "Contract" of the system. Shared TypeScript interfaces (DTOs, Enums) that ensure the API and Frontends speak the same language.
+- **`ui/`**: Atomic design system. Contains primitive components (Buttons, Inputs, Glass containers) used by all frontends.
+- **`utils/`**: Pure functional helpers (Validation, Formatting, Cryptography) with zero external dependencies.
+- **`config/`**: Shared development environment settings (ESLint base, Tsconfig base).
 
-## 3. Core Architectural Rules
-1. **Rule of Isolation**: Domain modules in `apps/api` must not have cross-service circular dependencies.
-2. **Rule of Contracts**: All API communication must use shared DTOs from `@neuro-academy/types`.
-3. **Rule of Content**: Lessons are never monolithic strings; they are structured arrays of `LessonBlock`.
-4. **Rule of Progress**: User progress is calculated server-side based on atomic lesson completion and total syllabus weight.
-5. **Rule of Access**: `Enrollment` is the decoupling layer between payments and course content.
+## 3. Communication Patterns
+### 3.1 Client to Server
+- **RESTful API**: Standard communication between TWA/Admin and the NestJS backend.
+- **Authentication**: JWT tokens issued upon validation of Telegram `initData`. HMAC-SHA256 signature verification is mandatory for every request.
 
-## 4. Scalability Logic
-- **Horizontally Scalable API**: Stateless JWT-based authentication.
-- **Optimized Content Delivery**: Block-based rendering allows for varying content types (Video, PDF, Quizzes) without UI debt.
-- **Relational Integrity**: PostgreSQL ensures strict consistency for user progress and financial records.
+### 3.2 Internal (Package-to-App)
+- **Direct Workspace Imports**: Apps import packages via their namespaced aliases (e.g., `@neuro-academy/types`).
+
+## 4. Architectural Constraints & Rules
+- **Domain Decoupling**: Business logic must reside in `api` services. Frontends are purely representational.
+- **Rule of Enrollment**: Access to content must always be checked against the `Enrollment` entity, never directly against `Purchase` history.
+- **Block-Based Content**: Lesson content must never be hard-coded. It must always be stored and retrieved as a structured array of `LessonBlock`.
+- **Statelessness**: The API must remain stateless, relying on JWTs and the database for all user context.
+
+## 5. Technology Stack
+- **Backend**: NestJS, Prisma ORM, Passport.js (JWT).
+- **Frontend**: Next.js 14 (App Router), Tailwind CSS (Vanilla CSS variables), Framer Motion.
+- **Database**: PostgreSQL (Relational integrity for financials/progress).
+- **Infrastructure**: Telegram Mini App SDK.
+
+## 6. Deployment & Dev-Ops
+- **Standardized Scripts**: All critical operations (database migration, generation, development environment) are unified in the root `package.json`.
+- **Type Safety**: Any change to the domain model must be reflected in `@neuro-academy/types` before being consumed by apps, preventing runtime contract breaks.

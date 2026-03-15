@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useLesson } from '@/hooks/useLearning';
+import { useLesson } from './hooks/useLesson';
 import { LessonRenderer } from './components/LessonRenderer';
 
 export const LessonScreen: React.FC<{ 
@@ -9,7 +9,7 @@ export const LessonScreen: React.FC<{
   onBack: () => void;
   onComplete: () => void;
 }> = ({ lessonId, onBack, onComplete }) => {
-  const { lesson, loading, error } = useLesson(lessonId);
+  const { lesson, loading } = useLesson(lessonId);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">

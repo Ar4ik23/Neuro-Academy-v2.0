@@ -32,6 +32,20 @@ export class EnrollmentsService {
     });
   }
 
+  async getUserEnrollments(userId: string) {
+    return this.prisma.enrollment.findMany({
+      where: {
+        userId,
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gt: new Date() } },
+        ],
+      },
+      include: { course: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async validateAccess(userId: string, courseId: string) {
     const hasAccess = await this.checkAccess(userId, courseId);
     if (!hasAccess) {

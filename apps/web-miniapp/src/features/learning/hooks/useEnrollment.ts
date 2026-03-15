@@ -10,19 +10,17 @@ export const useEnrollment = (courseId?: string) => {
     if (!courseId) return;
     setLoading(true);
     try {
-      const data = await apiClient.get<{ hasAccess: boolean }>(`/enrollments/check/${courseId}`);
+      const { data } = await apiClient.get<{ hasAccess: boolean }>(`/enrollments/check/${courseId}`);
       setHasAccess(data.hasAccess);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to check access');
     } finally {
       setLoading(false);
     }
   }, [courseId]);
 
   useEffect(() => {
-    if (courseId) {
-      checkAccess();
-    }
+    if (courseId) checkAccess();
   }, [courseId, checkAccess]);
 
   return { hasAccess, loading, error, refresh: checkAccess };

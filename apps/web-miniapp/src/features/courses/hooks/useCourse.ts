@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../../services/api';
+import type { CourseDetailDto } from '@neuro-academy/types';
 
 export const useCourse = (id: string) => {
-  const [course, setCourse] = useState<any>(null);
+  const [course, setCourse] = useState<CourseDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,10 +12,10 @@ export const useCourse = (id: string) => {
 
     const fetchCourse = async () => {
       try {
-        const data = await apiClient.get<any>(`/courses/${id}`);
+        const { data } = await apiClient.get<CourseDetailDto>(`/courses/${id}`);
         setCourse(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load course');
       } finally {
         setLoading(false);
       }

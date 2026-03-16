@@ -5,6 +5,11 @@ export interface CourseDto {
   thumbnail?: string;
   published: boolean;
   price: number;
+  category?: string;
+  subtitle?: string;
+  fullDescription?: string;
+  status?: string;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +20,8 @@ export interface ModuleDto {
   title: string;
   description?: string;
   order: number;
+  emoji?: string;
+  isFree: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +31,9 @@ export interface LessonSummaryDto {
   moduleId: string;
   title: string;
   order: number;
+  lessonType?: string;
+  duration?: string;
+  isFree: boolean;
 }
 
 export interface CourseDetailDto extends CourseDto {
@@ -54,7 +64,7 @@ export interface LessonBlock {
 
 export interface LessonDetailDto extends LessonSummaryDto {
   blocks: LessonBlock[];
-  quiz?: any;
+  quiz?: import('./quiz').QuizDto;
 }
 
 export interface CreateCourseDto {

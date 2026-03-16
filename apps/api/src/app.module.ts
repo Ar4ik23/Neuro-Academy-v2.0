@@ -11,6 +11,7 @@ import { NotesModule } from './modules/notes/notes.module';
 import { AIModule } from './modules/ai/ai.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { TelegramModule } from './modules/telegram/telegram.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
     AIModule,
     EnrollmentsModule,
     PaymentsModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

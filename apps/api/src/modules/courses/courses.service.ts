@@ -14,7 +14,13 @@ export class CoursesService {
     
     return courses.map(c => ({
       ...c,
-      price: Number(c.price),
+      price:           Number(c.price),
+      description:     c.description     ?? undefined,
+      thumbnail:       c.thumbnail       ?? undefined,
+      category:        c.category        ?? undefined,
+      subtitle:        c.subtitle        ?? undefined,
+      fullDescription: c.fullDescription ?? undefined,
+      status:          c.status          ?? undefined,
     }));
   }
 
@@ -32,6 +38,9 @@ export class CoursesService {
                 moduleId: true,
                 title: true,
                 order: true,
+                lessonType: true,
+                duration: true,
+                isFree: true,
               },
             },
           },
@@ -45,10 +54,22 @@ export class CoursesService {
 
     return {
       ...course,
-      price: Number(course.price),
+      price:           Number(course.price),
+      description:     course.description     ?? undefined,
+      thumbnail:       course.thumbnail       ?? undefined,
+      category:        course.category        ?? undefined,
+      subtitle:        course.subtitle        ?? undefined,
+      fullDescription: course.fullDescription ?? undefined,
+      status:          course.status          ?? undefined,
       modules: course.modules.map(m => ({
         ...m,
-        lessons: m.lessons,
+        description: m.description ?? undefined,
+        emoji:       m.emoji       ?? undefined,
+        lessons: m.lessons.map(l => ({
+          ...l,
+          lessonType: l.lessonType ?? undefined,
+          duration:   l.duration   ?? undefined,
+        })),
       })),
     };
   }

@@ -19,3 +19,14 @@ export interface CourseProgressDto {
   status: ProgressStatus;
   updatedAt: Date;
 }
+
+export interface CourseProgressDetailDto {
+  courseId: string;
+  percentage: number;
+  status: ProgressStatus;
+  completedLessonIds: string[];
+  completedModuleIds: string[];
+  currentLessonId: string | null;
+  currentModuleId: string | null;
+  updatedAt: Date;
+}

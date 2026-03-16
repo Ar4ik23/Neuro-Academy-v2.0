@@ -22,9 +22,14 @@ export const useAuth = () => {
         return;
       }
 
+      if (!initData) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await apiClient.post<AuthResponseDto>('/auth/login', {
-          initData: initData || 'DEBUG_DATA' // Fallback for local dev if needed
+          initData,
         });
 
         const { token, user: loggedInUser } = response.data;

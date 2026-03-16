@@ -7,51 +7,33 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: "#6366f1", // Indigo-500
-          dark: "#4f46e5",
-        },
-        accent: {
-          DEFAULT: "#8b5cf6", // Violet-500
-          glow: "rgba(139, 92, 246, 0.3)",
-        },
-        background: {
-          DEFAULT: "#0f172a", // Slate-900
-          card: "rgba(30, 41, 59, 0.7)",
-        },
-      },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "premium-gradient": "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-        "glass-gradient": "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
-      },
-      borderRadius: {
-        "3xl": "1.5rem",
-        "4xl": "2rem",
-      },
-      boxShadow: {
-        "glass": "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-        "premium": "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)",
+        base:    "#0b0f1a",
+        surface: { DEFAULT: "#161b2e", 2: "#1e2540" },
+        primary: { DEFAULT: "#6366f1", light: "#818cf8", dark: "#4f46e5" },
+        accent:  "#a855f7",
+        warm:    { DEFAULT: "#f59e0b", glow: "rgba(245,158,11,0.22)" },
+        blue:    "#3b82f6",
+        text:    { 1: "#e2e8f0", 2: "#94a3b8", 3: "#475569" },
+        success: "#10b981",
+        error:   "#ef4444",
+        border:  { subtle: "rgba(255,255,255,0.08)" },
       },
       animation: {
         "fade-in-up": "fadeInUp 0.5s ease-out forwards",
-        "pulse-glow": "pulseGlow 2s infinite",
       },
       keyframes: {
         fadeInUp: {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "0%":   { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        pulseGlow: {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(99, 102, 241, 0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(99, 102, 241, 0.6)" },
-        }
-      }
+      },
     },
   },
   plugins: [],
 };
+
 export default config;

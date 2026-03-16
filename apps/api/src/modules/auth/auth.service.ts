@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AuthResponseDto, TelegramUser } from '@neuro-academy/types';
+import { AuthResponseDto, TelegramUser, UserRole } from '@neuro-academy/types';
 
 @Injectable()
 export class AuthService {
@@ -72,6 +72,9 @@ export class AuthService {
       user: {
         ...user,
         telegramId: user.telegramId.toString(),
+        username:  user.username  ?? undefined,
+        lastName:  user.lastName  ?? undefined,
+        role:      user.role as unknown as UserRole,
       },
       token: this.jwtService.sign(payload),
     };

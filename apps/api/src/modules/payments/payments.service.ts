@@ -24,7 +24,7 @@ export class PaymentsService {
     });
 
     // 2. Grant access separately (Rule 9)
-    await this.enrollmentsService.grantAccess(userId, courseId, EnrollmentType.PURCHASE);
+    await this.enrollmentsService.grantAccess(userId, courseId, EnrollmentType.PURCHASED);
 
     return purchase;
   }

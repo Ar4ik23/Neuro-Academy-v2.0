@@ -2,61 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS Variables ─────────────────────────────────────────────────────────── */
 :root {
-  --foreground: #f8fafc;
-  --background: #0f172a;
+  --base:           #0b0f1a;
+  --surface:        #161b2e;
+  --surface-2:      #1e2540;
+  --border:         rgba(255,255,255,0.08);
+
+  --primary:        #6366f1;
+  --primary-glow:   rgba(99,102,241,0.20);
+  --accent:         #a855f7;
+  --warm:           #f59e0b;
+  --warm-glow:      rgba(245,158,11,0.22);
+  --blue:           #3b82f6;
+
+  --text-1:         #e2e8f0;
+  --text-2:         #94a3b8;
+  --text-3:         #475569;
+
+  --success:        #10b981;
+  --error:          #ef4444;
+
+  --glass-bg:       rgba(22,27,46,0.75);
+  --glass-blur:     12px;
 }
 
+/* ── Base ──────────────────────────────────────────────────────────────────── */
 html, body {
   height: 100%;
+  background-color: var(--base);
+  color: var(--text-1);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: 'Inter', sans-serif;
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse at 15% 15%, rgba(99,102,241,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(168,85,247,0.06) 0%, transparent 50%);
+}
+
+#__next, main { position: relative; z-index: 1; }
+
+/* ── Components ────────────────────────────────────────────────────────────── */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0 36px var(--primary-glow);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border-radius: 14px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary:hover  { box-shadow: 0 0 32px rgba(99,102,241,0.45); opacity: 0.92; }
+.btn-primary:active { transform: scale(0.97); }
+
+.progress-track {
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
   overflow: hidden;
 }
 
+.progress-fill {
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 999px;
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+/* ── Legacy compat ─────────────────────────────────────────────────────────── */
 .glass-card {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.125);
-  box-shadow: 0 8px 32px 32px 0 rgba(0, 0, 0, 0.37);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border);
 }
 
-.premium-border {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-clip: padding-box;
+.premium-border { border: 1px solid var(--border); }
+
+.twa-tap-active:active { transform: scale(0.98); opacity: 0.9; transition: all 0.1s ease; }
+
+/* ── Artemius ──────────────────────────────────────────────────────────────── */
+.artemius-glow {
+  color: var(--warm);
+  filter: drop-shadow(0 0 8px var(--warm-glow));
 }
 
-/* Telegram Mini App Smooth Interactions */
-.twa-tap-active:active {
-  transform: scale(0.98);
-  opacity: 0.9;
-  transition: all 0.1s ease;
-}
-
-/* Animations */
+/* ── Animations ────────────────────────────────────────────────────────────── */
 .animate-enter {
-  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: rgba(99,102,241,0.30);
+  border-radius: 999px;
 }

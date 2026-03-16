@@ -30,7 +30,7 @@ export class QuizzesService {
       throw new NotFoundException('Quiz not found');
     }
 
-    return quiz as any;
+    return quiz as QuizDto;
   }
 
   async submit(userId: string, quizId: string, submission: QuizSubmissionDto): Promise<QuizResultDto> {

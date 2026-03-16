@@ -17,6 +17,17 @@ export class LessonsService {
             id: true,
             title: true,
             passingScore: true,
+            questions: {
+              orderBy: { order: 'asc' as const },
+              select: {
+                id: true,
+                text: true,
+                order: true,
+                options: {
+                  select: { id: true, text: true },
+                },
+              },
+            },
           },
         },
       },

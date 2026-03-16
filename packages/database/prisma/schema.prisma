@@ -48,23 +48,31 @@ model User {
   purchases     Purchase[]
   notes         Note[]
   aiRequests    AIRequest[]
+  quizAttempts  QuizAttempt[]
+  certificates  Certificate[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
 
 model Course {
-  id          String       @id @default(uuid())
-  title       String
-  description String?
-  thumbnail   String?
-  published   Boolean      @default(false)
-  price       Decimal      @default(0.0)
-  modules     Module[]
-  enrollments Enrollment[]
-  progress    CourseProgress[]
-  purchases   Purchase[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              String       @id @default(uuid())
+  title           String
+  description     String?
+  thumbnail       String?
+  published       Boolean      @default(false)
+  price           Decimal      @default(0.0)
+  category        String?
+  subtitle        String?
+  fullDescription String?
+  status          String?
+  tags            String[]
+  modules         Module[]
+  enrollments     Enrollment[]
+  progress        CourseProgress[]
+  purchases       Purchase[]
+  certificates    Certificate[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Module {
@@ -74,6 +82,8 @@ model Module {
   title       String
   description String?
   order       Int
+  emoji       String?
+  isFree      Boolean  @default(false)
   lessons     Lesson[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -85,6 +95,9 @@ model Lesson {
   module      Module           @relation(fields: [moduleId], references: [id])
   title       String
   order       Int
+  lessonType  String?
+  duration    String?
+  isFree      Boolean          @default(false)
   blocks      LessonBlock[]
   quiz        Quiz?
   progress    LessonProgress[]
@@ -111,6 +124,7 @@ model Quiz {
   title        String
   passingScore Int            @default(80)
   questions    QuizQuestion[]
+  attempts     QuizAttempt[]
 }
 
 model QuizQuestion {
@@ -197,6 +211,29 @@ model CourseProgress {
   percentage Int            @default(0)
   status     ProgressStatus @default(IN_PROGRESS)
   updatedAt  DateTime       @updatedAt
+
+  @@unique([userId, courseId])
+}
+
+model QuizAttempt {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  score     Int
+  isPassed  Boolean
+  createdAt DateTime @default(now())
+}
+
+model Certificate {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  courseId       String
+  course         Course   @relation(fields: [courseId], references: [id])
+  certificateUrl String
+  issuedAt       DateTime @default(now())
 
   @@unique([userId, courseId])
 }

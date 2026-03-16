@@ -11,7 +11,7 @@ export const useLesson = (id: string) => {
     setLoading(true);
     try {
       const data = await apiClient.get<any>(`/lessons/${id}`);
-      setLesson(data);
+      setLesson(data.data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -36,7 +36,7 @@ export const useProgress = (courseId?: string) => {
     setLoading(true);
     try {
       const data = await apiClient.get<any>(`/progress/course/${courseId}`);
-      setProgress(data);
+      setProgress(data.data);
     } catch (err: any) {
       setError(err.message);
     } finally {

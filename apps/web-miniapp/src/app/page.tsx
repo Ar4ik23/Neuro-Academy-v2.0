@@ -1,20 +1,67 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCourseProgress } from '@/hooks/useCourseProgress';
+import { useCourse } from '@/hooks/useCourse';
+import { COURSE_ID } from '@/data/course-map';
+import { getExamState } from '@/store/examProgress';
+
 export default function Home() {
+  const router = useRouter();
+  const courseId = COURSE_ID;
+  const { isStarted, percent: rawPercent, progress } = useCourseProgress(courseId);
+  const { course } = useCourse(courseId);
+  const [examPassed, setExamPassed] = useState(false);
+  useEffect(() => {
+    setExamPassed(getExamState(courseId).passed);
+  }, [courseId]);
+  const percent = examPassed ? 100 : rawPercent;
+
+  const currentLesson = course?.modules
+    .flatMap((m) => m.lessons)
+    .find((l) => l.id === progress?.currentLessonId);
+
   return (
-    <div className="flex flex-col items-center justify-center p-10 h-full text-center">
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent mb-4">
+    <div className="flex flex-col p-4 pt-10">
+      <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
         Neuro-Academy
       </h1>
-      <p className="text-lg text-white/40 font-medium">
-        Welcome
-      </p>
+      <p className="text-text-3 text-sm mb-6">Добро пожаловать</p>
+
+      {isStarted && (
+        <div
+          className="rounded-2xl p-4 cursor-pointer active:scale-[0.98] transition-all"
+          style={{ background: 'rgba(99,102,241,0.10)', border: '1px solid rgba(99,102,241,0.25)' }}
+          onClick={() => router.push(`/courses/${courseId}/learn`)}
+        >
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-[#e2e8f0] font-semibold text-sm">{course?.title}</p>
+            <p className="text-xs font-bold" style={{ color: examPassed ? '#10b981' : '#6366f1' }}>
+              {examPassed ? '✓ Пройден' : `${percent}%`}
+            </p>
+          </div>
+
+          <p className="text-[#94a3b8] text-xs mb-3">Продолжить обучение</p>
+
+          <div className="progress-track h-1.5 mb-3">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${percent}%`,
+                background: examPassed ? 'linear-gradient(90deg,#10b981,#34d399)' : undefined,
+              }}
+            />
+          </div>
+
+          <div className="flex justify-between items-center">
+            <p className="text-[#475569] text-xs">
+              Следующий: {currentLesson?.title || 'Урок'}
+            </p>
+            <span className="text-[#6366f1] text-sm font-semibold">→</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-const NavItem = ({ label, icon, active = false }: { label: string; icon: string; active?: boolean }) => (
-  <button className={`flex flex-col items-center gap-1 transition-all ${active ? 'scale-110 opacity-100' : 'opacity-40 hover:opacity-70'}`}>
-    <span className="text-xl">{icon}</span>
-    <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
-    {active && <div className="h-1 w-1 rounded-full bg-blue-400 mt-1" />}
-  </button>
-);

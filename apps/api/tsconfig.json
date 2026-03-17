@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "ES2021",
     "lib": ["ES2021"],
-    "outDir": "./dist",
+    "outDir": "../../dist/apps/api",
     "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,

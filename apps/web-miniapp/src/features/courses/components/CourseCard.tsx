@@ -6,7 +6,7 @@ export const CourseCard: React.FC<{
   thumbnail?: string;
   price: number;
   onClick: () => void;
-}> = ({ title, description, thumbnail, price, onClick }) => {
+}> = ({ title, description, thumbnail, onClick }) => {
   return (
     <div 
       onClick={onClick}
@@ -20,14 +20,15 @@ export const CourseCard: React.FC<{
              <span className="text-white/40 text-4xl">🎓</span>
           </div>
         )}
-        <div className="absolute top-3 right-3 bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-          {price > 0 ? `$${price}` : 'FREE'}
-        </div>
       </div>
       
       <div className="flex flex-col gap-1">
         <h3 className="text-lg font-bold text-white leading-tight">{title}</h3>
-        <p className="text-sm text-slate-400 line-clamp-2">{description}</p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className="text-xs">👤</span>
+          <span className="text-xs font-medium" style={{ color: 'rgba(196,181,253,0.80)' }}>Ilya Chernyshov</span>
+        </div>
+        <p className="text-sm text-slate-400 line-clamp-2 mt-0.5">{description}</p>
       </div>
 
       <button className="mt-2 w-full py-3 rounded-2xl bg-indigo-500 hover:bg-indigo-600 font-bold text-sm text-white transition-colors shadow-lg shadow-indigo-500/20">

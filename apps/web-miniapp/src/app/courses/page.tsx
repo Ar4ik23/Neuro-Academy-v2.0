@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { useCoursesList } from "@/hooks/useCourse";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
@@ -15,7 +16,7 @@ export default function CoursesPage() {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Курсы
         </h1>
-        <p className="text-text-3 text-sm mt-1">Выбери свой путь</p>
+        <p className="text-sm mt-1" style={{ color: 'rgba(220,228,255,0.55)' }}>Выбери свой путь</p>
       </header>
 
       {loading ? (
@@ -42,12 +43,12 @@ export default function CoursesPage() {
   );
 }
 
-function CourseCard({ course }: { course: CourseDto }) {
+const CourseCard = memo(function CourseCard({ course }: { course: CourseDto }) {
   const { isStarted, percent: rawPercent } = useCourseProgress(course.id);
   const examState = getExamState(course.id);
   const percent = examState.passed ? 100 : rawPercent;
   return (
-    <div className="card group relative overflow-hidden">
+    <div className="group relative overflow-hidden rounded-[20px] overflow-hidden" style={{ background: 'rgba(14,18,50,0.55)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 10px 30px rgba(0,0,0,0.45), 0 0 15px rgba(124,92,255,0.10)' }}>
       {/* Thumbnail */}
       <div className="relative h-44 w-full overflow-hidden rounded-t-2xl">
         <img
@@ -81,6 +82,10 @@ function CourseCard({ course }: { course: CourseDto }) {
       {/* Body */}
       <div className="p-5 flex flex-col gap-3">
         <h3 className="text-xl font-black text-text-1 leading-tight">{course.title}</h3>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs">👤</span>
+          <span className="text-xs font-medium" style={{ color: 'rgba(196,181,253,0.80)' }}>Ilya Chernyshov</span>
+        </div>
         <p className="text-sm text-text-2 leading-relaxed">{course.description}</p>
 
         {/* Tags */}
@@ -134,4 +139,4 @@ function CourseCard({ course }: { course: CourseDto }) {
       </div>
     </div>
   );
-}
+});

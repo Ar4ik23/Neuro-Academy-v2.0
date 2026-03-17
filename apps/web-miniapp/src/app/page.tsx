@@ -13,9 +13,11 @@ export default function Home() {
   const { isStarted, percent: rawPercent, progress } = useCourseProgress(courseId);
   const { course } = useCourse(courseId);
   const [examPassed, setExamPassed] = useState(false);
+
   useEffect(() => {
     setExamPassed(getExamState(courseId).passed);
   }, [courseId]);
+
   const percent = examPassed ? 100 : rawPercent;
 
   const currentLesson = course?.modules
@@ -23,11 +25,16 @@ export default function Home() {
     .find((l) => l.id === progress?.currentLessonId);
 
   return (
-    <div className="flex flex-col p-4 pt-10">
-      <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
-        Neuro-Academy
-      </h1>
-      <p className="text-text-3 text-sm mb-6">Добро пожаловать</p>
+    <div className="flex flex-col p-4 pt-10 pb-24 gap-4" style={{ minHeight: '100%' }}>
+
+      <div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-0.5">
+          Главная
+        </h1>
+        <p className="text-xs" style={{ color: 'rgba(220,228,255,0.55)' }}>Добро пожаловать</p>
+      </div>
+
+      <div style={{ flexGrow: 1, minHeight: '45vh' }} />
 
       {isStarted && (
         <div
@@ -41,9 +48,7 @@ export default function Home() {
               {examPassed ? '✓ Пройден' : `${percent}%`}
             </p>
           </div>
-
           <p className="text-[#94a3b8] text-xs mb-3">Продолжить обучение</p>
-
           <div className="progress-track h-1.5 mb-3">
             <div
               className="progress-fill"
@@ -53,15 +58,24 @@ export default function Home() {
               }}
             />
           </div>
-
           <div className="flex justify-between items-center">
-            <p className="text-[#475569] text-xs">
+            <p className="text-xs" style={{ color: 'rgba(220,228,255,0.72)' }}>
               Следующий: {currentLesson?.title || 'Урок'}
             </p>
             <span className="text-[#6366f1] text-sm font-semibold">→</span>
           </div>
         </div>
       )}
+
+      {!isStarted && (
+        <div
+          className="rounded-2xl p-4 text-center"
+          style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.18)' }}
+        >
+          <p className="text-xs" style={{ color: '#475569' }}>Начни курс, чтобы отслеживать прогресс</p>
+        </div>
+      )}
+
     </div>
   );
 }

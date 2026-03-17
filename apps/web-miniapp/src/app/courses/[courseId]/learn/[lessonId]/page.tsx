@@ -208,6 +208,15 @@ function ModuleQuizBlock({ block, onAnswer }: { block: ModuleQuizBlockData; onAn
   const [done,      setDone]      = useState(false);
   const [answers,   setAnswers]   = useState<{ questionId: string; optionId: string }[]>([]);
 
+  const handleRetake = () => {
+    setCurrent(0);
+    setSelected(null);
+    setConfirmed(false);
+    setCorrect(0);
+    setDone(false);
+    setAnswers([]);
+  };
+
   const q     = block.questions[current];
   const total = block.questions.length;
 
@@ -251,6 +260,15 @@ function ModuleQuizBlock({ block, onAnswer }: { block: ModuleQuizBlockData; onAn
         <p style={{ color: passed ? '#34d399' : '#f87171', fontSize: '0.75rem', fontWeight: 600 }}>
           {passed ? `Нужно было ${block.passThreshold}/${total} — ты справился ✓` : `Нужно ${block.passThreshold}/${total} — попробуй ещё раз`}
         </p>
+        {!passed && (
+          <button
+            onClick={handleRetake}
+            className="w-full py-3 rounded-2xl font-bold text-sm"
+            style={{ background: 'linear-gradient(135deg,#6366f1,#a855f7)', color: '#fff', boxShadow: '0 0 20px rgba(99,102,241,0.35)', border: 'none', cursor: 'pointer' }}
+          >
+            🔄 Пройти квиз заново
+          </button>
+        )}
       </div>
     );
   }
@@ -421,7 +439,7 @@ function ModuleCompleteScreen({ onNext }: { onNext: () => void }) {
         className="mt-6 rounded-2xl p-4 w-full"
         style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.20)' }}
       >
-        <p className="text-[#f59e0b] text-xs font-semibold uppercase tracking-wider">🤖 Артемиус</p>
+        <p className="text-[#f59e0b] text-xs font-semibold uppercase tracking-wider">🤖 Nero</p>
         <p className="text-[#e2e8f0] text-sm mt-2 leading-relaxed">Ты справился. Продолжай в том же темпе!</p>
       </div>
       <button
@@ -457,7 +475,7 @@ export default function LessonPage() {
 
   const [blockIndex,       setBlockIndex]       = useState(0);
   const [isModuleComplete, setIsModuleComplete]  = useState(false);
-  const [quizAnswered,     setQuizAnswered]      = useState(false);
+  const [quizPassed,       setQuizPassed]        = useState<boolean | null>(null);
   const [artemiosPrefill,  setArtemiosPrefill]   = useState('');
   const [selectionPopup,   setSelectionPopup]    = useState<{ x: number; y: number; text: string } | null>(null);
   const [noteModal,        setNoteModal]         = useState<{ open: boolean; selectedText: string; comment: string }>({ open: false, selectedText: '', comment: '' });
@@ -496,7 +514,7 @@ export default function LessonPage() {
   const currentBlock = blocks[blockIndex];
   const isLastBlock  = blockIndex === blocks.length - 1;
   const BlockComp    = BLOCK_REGISTRY[currentBlock?.type];
-  const canContinue  = (currentBlock?.type === 'QUIZ' || currentBlock?.type === 'MODULE_QUIZ') ? quizAnswered : true;
+  const canContinue  = (currentBlock?.type === 'QUIZ' || currentBlock?.type === 'MODULE_QUIZ') ? quizPassed === true : true;
 
   const handleFinishLesson = () => {
     complete(lessonId);
@@ -508,7 +526,7 @@ export default function LessonPage() {
       handleFinishLesson();
     } else {
       setBlockIndex((prev) => prev + 1);
-      setQuizAnswered(false);
+      setQuizPassed(null);
     }
   };
 
@@ -569,7 +587,7 @@ export default function LessonPage() {
         {BlockComp && (
           <BlockComp
             block={currentBlock}
-            onAnswer={() => setQuizAnswered(true)}
+            onAnswer={(correct) => setQuizPassed(correct)}
           />
         )}
         {isLastBlock && !isQuizLesson && (
@@ -636,7 +654,7 @@ export default function LessonPage() {
                 cursor: 'pointer',
               }}
             >
-              Спросить у Артемиуса
+              Спросить у Nero
             </button>
             <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.15)' }} />
             <button

@@ -156,7 +156,7 @@ export default function CourseStartPage() {
           </div>
         )}
 
-        {/* ШАГ 2 — Артемиус */}
+        {/* ШАГ 2 — Nero */}
         {currentStep === 2 && (
           <div className="flex flex-col flex-1 items-center text-center">
             <div
@@ -171,7 +171,7 @@ export default function CourseStartPage() {
             </div>
 
             <p className="text-[#f59e0b] text-xs font-semibold uppercase tracking-widest mb-3">
-              Артемиус
+              Nero
             </p>
             <h2 className="text-[#e2e8f0] text-xl font-bold">Я буду рядом</h2>
             <p className="text-[#94a3b8] text-sm mt-3 leading-relaxed max-w-[280px]">
@@ -187,7 +187,7 @@ export default function CourseStartPage() {
               <p className="text-[#fbbf24] text-sm italic">
                 "Главное — не скорость, а движение вперёд."
               </p>
-              <p className="text-[#78716c] text-xs mt-1">— Артемиус</p>
+              <p className="text-[#78716c] text-xs mt-1">— Nero</p>
             </div>
           </div>
         )}

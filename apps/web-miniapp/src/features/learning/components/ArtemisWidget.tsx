@@ -129,7 +129,7 @@ export function ArtemisWidget({ lessonContext, prefill, onPrefillUsed }: Artemis
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '18px' }}>🤖</span>
-              <span style={{ color: '#a5b4fc', fontWeight: 600, fontSize: '14px' }}>Артемиус</span>
+              <span style={{ color: '#a5b4fc', fontWeight: 600, fontSize: '14px' }}>Nero</span>
             </div>
             <button
               onClick={() => setOpen(false)}

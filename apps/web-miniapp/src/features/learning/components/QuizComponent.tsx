@@ -33,25 +33,59 @@ export const QuizComponent: React.FC<{
   if (loading && !quiz) return <div>Loading Quiz...</div>;
   if (!quiz) return null;
 
+  const handleRetake = () => {
+    setAnswers({});
+    setResult(null);
+  };
+
   if (result) {
+    const passed = result.isPassed;
     return (
       <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex items-center justify-center p-6 animate-enter">
         <div className="glass-card premium-border rounded-[40px] p-8 w-full max-w-md flex flex-col items-center gap-6 text-center">
-          <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg ${result.isPassed ? 'bg-green-500 shadow-green-500/20' : 'bg-red-500 shadow-red-500/20'}`}>
-            {result.isPassed ? '✅' : '❌'}
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg ${passed ? 'bg-green-500 shadow-green-500/20' : 'bg-red-500 shadow-red-500/20'}`}>
+            {passed ? '✅' : '❌'}
           </div>
           <div className="flex flex-col gap-2">
-            <h2 className="text-2xl font-black text-white">{result.isPassed ? 'Congratulations!' : 'Try Again'}</h2>
+            <h2 className="text-2xl font-black text-white">{passed ? 'Поздравляем!' : 'Не сдал'}</h2>
             <p className="text-slate-400 text-sm">
-              You scored {result.score}% ({result.correctAnswers}/{result.totalQuestions})
+              {result.correctAnswers}/{result.totalQuestions} правильных ответов ({result.score}%)
             </p>
+            {!passed && (
+              <p className="text-slate-500 text-xs mt-1">
+                Пройди квиз заново чтобы завершить модуль
+              </p>
+            )}
           </div>
-          <button 
-            onClick={() => onFinished(result.isPassed)}
-            className="w-full py-4 rounded-2xl bg-white text-black font-black"
-          >
-            {result.isPassed ? 'CONTINUE' : 'BACK TO LESSON'}
-          </button>
+
+          {passed ? (
+            <button
+              onClick={() => onFinished(true)}
+              className="w-full py-4 rounded-2xl font-black text-white"
+              style={{ background: 'linear-gradient(135deg,#10b981,#34d399)', boxShadow: '0 0 20px rgba(16,185,129,0.35)' }}
+            >
+              Завершить модуль →
+            </button>
+          ) : (
+            <div className="w-full flex flex-col gap-3">
+              {/* Retake button — primary action */}
+              <button
+                onClick={handleRetake}
+                className="w-full py-4 rounded-2xl font-black text-white"
+                style={{ background: 'linear-gradient(135deg,#6366f1,#a855f7)', boxShadow: '0 0 20px rgba(99,102,241,0.35)' }}
+              >
+                🔄 Пройти квиз заново
+              </button>
+              {/* Complete module — locked until quiz passed */}
+              <button
+                disabled
+                className="w-full py-4 rounded-2xl font-bold text-sm"
+                style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(190,200,235,0.40)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'not-allowed' }}
+              >
+                🔒 Завершить модуль
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );

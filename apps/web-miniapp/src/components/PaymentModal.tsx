@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { apiClient } from '@/services/api';
 
-const PRICE_USDT = 1; // TODO: вернуть 49 после теста
+const PRICE_USDT = 49;
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -57,8 +57,7 @@ export function PaymentModal({ onClose, courseId }: PaymentModalProps) {
       const token = res.data.token;
       localStorage.setItem('auth_token', token);
       return token;
-    } catch (err: any) {
-      console.error('Auth error:', err?.response?.status, err?.response?.data, err?.message);
+    } catch {
       return savedToken;
     }
   };

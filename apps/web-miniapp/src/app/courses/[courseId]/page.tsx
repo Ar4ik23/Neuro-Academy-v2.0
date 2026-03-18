@@ -39,7 +39,7 @@ export default function CourseDetailPage({
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen animate-enter">
+      <div className="flex flex-col animate-enter">
         <div className="w-full h-[200px] bg-white/5 animate-pulse" />
         <div className="px-4 pt-5 flex flex-col gap-3">
           <div className="h-7 w-3/4 rounded bg-white/5 animate-pulse" />
@@ -137,6 +137,25 @@ export default function CourseDetailPage({
               <p>После этого мы переходим к монетизации. Ты поймёшь, какие способы заработка работают в этой нише, как подключать платные подписки, продавать контент и выстраивать систему дохода вокруг AI-персонажа.</p>
               <p>При правильном выполнении всех шагов и активной работе с контентом многие ученики начинают получать первые результаты уже в первый месяц. Средний заработок наших выпускников составляет <span style={{ color: '#34d399', fontWeight: 700 }}>$3 000–$5 000 в месяц</span> и выше — в зависимости от вовлечённости и масштабирования системы.</p>
             </div>
+
+            {/* Мягкое уведомление о VIP */}
+            {!isVip && (
+              <div
+                className="flex items-start gap-3 px-4 py-3.5 rounded-2xl"
+                style={{ background: 'rgba(124,92,255,0.07)', border: '1px solid rgba(124,92,255,0.16)' }}
+              >
+                <span className="text-lg shrink-0 mt-0.5">✨</span>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(196,181,253,0.75)' }}>
+                  Первые два урока доступны бесплатно. Полный курс, все материалы и AI-ассистент открываются с{' '}
+                  <button
+                    onClick={() => { localStorage.setItem('open_vip', '1'); router.push('/profile'); }}
+                    style={{ color: '#a78bfa', fontWeight: 600, background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 'inherit' }}
+                  >
+                    VIP доступом →
+                  </button>
+                </p>
+              </div>
+            )}
 
             {/* 3 блока тем */}
             <div className="flex flex-col gap-2">
@@ -250,11 +269,11 @@ export default function CourseDetailPage({
               <div className="flex items-center gap-3">
                 <img
                   src="/autor.png"
-                  alt="Ilya Chernyshov"
+                  alt="Илья Чернышов"
                   style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', display: 'block', flexShrink: 0 }}
                 />
                 <div>
-                  <p className="text-[#e2e8f0] font-bold text-sm leading-tight">Ilya Chernyshov</p>
+                  <p className="text-[#e2e8f0] font-bold text-sm leading-tight">Илья Чернышов</p>
                   <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.70)' }}>Автор курса AI-model 2.0</p>
                 </div>
               </div>
@@ -301,54 +320,12 @@ export default function CourseDetailPage({
           {course.modules.map((mod: ModuleDto & { lessons: LessonSummaryDto[] }, index: number) => {
             const accent     = MODULE_ACCENTS[mod.order] ?? MODULE_ACCENTS[0];
             const isFirst    = index === 0;
-            const isVipStart = index === 1;
-            const isLocked   = !isFirst && !isVip;
+            const isLocked   = index > 1 && !isVip;
             const isExpanded = expandedModule === mod.id;
 
             return (
               <div key={mod.id}>
 
-                {/* ── VIP gate — один раз перед модулем 1 ── */}
-                {isVipStart && !isVip && (
-                  <div className="mb-4 mt-2">
-                    <button
-                      onClick={() => {
-                        localStorage.setItem('open_vip', '1');
-                        router.push('/profile');
-                      }}
-                      className="w-full rounded-2xl overflow-hidden active:scale-[0.98] transition-all text-left"
-                      style={{ background: 'linear-gradient(135deg, rgba(20,16,60,0.90) 0%, rgba(35,22,80,0.90) 100%)', border: '1px solid rgba(245,158,11,0.40)', boxShadow: '0 0 30px rgba(245,158,11,0.08)' }}
-                    >
-                      <div className="flex items-center gap-3 px-4 py-3.5">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                          style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.30)' }}>
-                          <span className="text-base">👑</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-black tracking-widest uppercase" style={{ color: '#f59e0b' }}>VIP доступ</p>
-                          <p className="text-[12px] font-semibold leading-tight mt-0.5" style={{ color: 'rgba(220,228,255,0.80)' }}>Модули 1–5 открываются после покупки</p>
-                        </div>
-                        <div className="flex flex-col items-end shrink-0 gap-0.5">
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="text-[11px] font-semibold line-through" style={{ color: 'rgba(220,228,255,0.30)' }}>$149</span>
-                            <span className="text-base font-black" style={{ color: '#f59e0b' }}>$49</span>
-                          </div>
-                          <span className="text-[10px] font-semibold" style={{ color: 'rgba(220,228,255,0.40)' }}>навсегда →</span>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                )}
-                {isVipStart && isVip && (
-                  <div className="flex items-center gap-3 mb-3 mt-1">
-                    <div style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, transparent, rgba(245,158,11,0.40))' }} />
-                    <span className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"
-                      style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.30)' }}>
-                      👑 VIP
-                    </span>
-                    <div style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, rgba(245,158,11,0.40), transparent)' }} />
-                  </div>
-                )}
 
               <div className="flex gap-3">
 
@@ -388,20 +365,16 @@ export default function CourseDetailPage({
                             style={{ fontSize: 10, color: isLocked ? 'rgba(71,85,105,0.60)' : '#475569' }}>
                             Модуль {mod.order}
                           </p>
-                          {isFirst && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                              style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', border: '1px solid rgba(52,211,153,0.30)' }}>
-                              FREE
-                            </span>
-                          )}
                         </div>
                         <h3 className="text-[14px] font-semibold leading-tight mt-0.5"
                           style={{ color: isLocked ? 'rgba(220,228,255,0.35)' : '#e2e8f0' }}>
                           {mod.title}
                         </h3>
-                        <p className="text-[11px] mt-0.5" style={{ color: 'rgba(190,200,235,0.35)' }}>
-                          {mod.lessons.filter((l: LessonSummaryDto) => !['Конспект','Квиз'].includes(l.title)).length} уроков
-                        </p>
+                        {mod.lessons.filter((l: LessonSummaryDto) => !['Конспект','Квиз'].includes(l.title)).length > 0 && (
+                          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(190,200,235,0.35)' }}>
+                            {mod.lessons.filter((l: LessonSummaryDto) => !['Конспект','Квиз'].includes(l.title)).length} уроков
+                          </p>
+                        )}
                       </div>
                       <span
                         className={`text-[#475569] text-sm ml-2 shrink-0 transition-transform duration-200 ${

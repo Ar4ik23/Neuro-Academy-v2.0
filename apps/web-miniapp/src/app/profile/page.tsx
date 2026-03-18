@@ -774,7 +774,7 @@ export default function ProfilePage() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-0.5">
           Профиль
         </h1>
-        <p className="text-xs" style={{ color: 'rgba(220,228,255,0.55)' }}>Nero Academy</p>
+        <p className="text-xs" style={{ color: 'rgba(220,228,255,0.55)' }}>Nero Learning</p>
       </div>
 
       <VipWidget isVip={isVip} onBuy={() => setShowPayment(true)} />

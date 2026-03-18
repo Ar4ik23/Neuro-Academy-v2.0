@@ -16,6 +16,7 @@ const NODE_R        = 32;
 const CHECKPOINT_H  = 60;   // module banner height
 const LESSON_ROW_H  = 124;
 const CP_GAP        = 16;   // padding above/below checkpoint when between modules
+const VIP_GATE_H    = 88;   // height of VIP gate banner in the path
 
 // Zigzag: 0=left(14%), 1=center(50%), 2=right(86%)
 // Pattern starts at center so first lesson is always centered
@@ -40,6 +41,11 @@ function nodeGlow(s: LessonStatus) {
   if (s === 'completed') return '0 0 14px rgba(124,92,255,0.28)';
   return 'none';
 }
+// Lesson is free if it's in module 0, or module 1 lessons 0-1 (first 2)
+function isFree(modOrder: number, lessonIdx: number) {
+  return modOrder === 0 || (modOrder === 1 && lessonIdx <= 1);
+}
+
 function lessonIcon(lesson: LessonSummaryDto, s: LessonStatus) {
   if (s === 'locked') return '🔒';
   if (lesson.title === 'Конспект') return '📄';
@@ -75,8 +81,7 @@ export default function CourseLearnPage() {
     return () => ro.disconnect();
   }, [course?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Всегда показываем низ страницы при открытии (модуль 0 снизу)
-  // Double-rAF гарантирует что DOM полностью отрисован перед скроллом
+  // Скроллим к текущему уроку (#path-current), или к низу если не найден
   useEffect(() => {
     if (!course) return;
     let cancelled = false;
@@ -84,7 +89,18 @@ export default function CourseLearnPage() {
       requestAnimationFrame(() => {
         if (cancelled) return;
         const main = document.querySelector('main');
-        if (main) main.scrollTop = main.scrollHeight;
+        if (!main) return;
+        const node = document.getElementById('path-current');
+        if (node) {
+          // Центрируем текущий урок в видимой области
+          const mainRect = main.getBoundingClientRect();
+          const nodeRect = node.getBoundingClientRect();
+          const nodeTopInMain = nodeRect.top - mainRect.top + main.scrollTop;
+          main.scrollTop = nodeTopInMain - main.clientHeight / 2 + node.offsetHeight / 2;
+        } else {
+          // Нет текущего урока — показываем начало (модуль 0 снизу)
+          main.scrollTop = main.scrollHeight;
+        }
       });
     });
     return () => { cancelled = true; };
@@ -110,7 +126,7 @@ export default function CourseLearnPage() {
 
   if (loading || !course) {
     return (
-      <div className="min-h-screen pb-24 flex flex-col">
+      <div className="pb-24 flex flex-col">
         <div className="px-4 pt-10 pb-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-white/5 animate-pulse" />
           <div className="flex-1">
@@ -132,7 +148,8 @@ export default function CourseLearnPage() {
   // Checkpoints are placed BETWEEN modules so the path line passes through them
   type Item =
     | { k: 'cp';     mod: typeof modules[0]; ms: ModStatus; y: number }
-    | { k: 'lesson'; mod: typeof modules[0]; lesson: LessonSummaryDto; ls: LessonStatus; lane: number; cx: number; y: number };
+    | { k: 'lesson'; mod: typeof modules[0]; lesson: LessonSummaryDto; ls: LessonStatus; lane: number; cx: number; y: number; lessonIdx: number }
+    | { k: 'vip';    y: number };
 
   const items: Item[] = [];
   let y  = 0;
@@ -152,6 +169,12 @@ export default function CourseLearnPage() {
 
     // ALL lessons go into the path (including Конспект and Квиз)
     for (const lesson of mod.lessons) {
+      // Insert VIP gate before lesson index 2 of module 1 (non-VIP only)
+      if (mod.order === 1 && lc === 2 && !isVip) {
+        items.push({ k: 'vip', y });
+        y += VIP_GATE_H;
+      }
+
       // First lesson of each module is always centered (cx = 50%), rest follow ZZ pattern
       const lane = lc === 0 ? 1 : ZZ_PATTERN[lc % ZZ_PATTERN.length];
       const cx   = lc === 0 ? Math.round(cw / 2) : Math.round(LANE_FRACS[lane] * cw);
@@ -160,7 +183,7 @@ export default function CourseLearnPage() {
         isCompleted(lesson.id)                  ? 'completed' :
         lesson.id === progress?.currentLessonId ? 'current'   : 'locked';
 
-      items.push({ k: 'lesson', mod, lesson, ls, lane, cx, y });
+      items.push({ k: 'lesson', mod, lesson, ls, lane, cx, y, lessonIdx: lc });
       y += LESSON_ROW_H;
       lc++;
     }
@@ -181,6 +204,7 @@ export default function CourseLearnPage() {
   const flippedItems = items.map(item =>
     item.k === 'cp'     ? { ...item, y: totalH - item.y - CHECKPOINT_H } :
     item.k === 'lesson' ? { ...item, y: totalH - item.y - LESSON_ROW_H } :
+    item.k === 'vip'    ? { ...item, y: totalH - item.y - VIP_GATE_H }   :
     item
   );
 
@@ -222,13 +246,13 @@ export default function CourseLearnPage() {
   const examUnlocked = isCompleted(lastLesson.lessonId);
 
   return (
-    <div className="min-h-screen pb-36 pt-20">
+    <div className="pb-36 pt-20">
 
-      {/* ── Header (fixed) ───────────────────────────────────────────────────── */}
+      {/* ── Header (fixed) — высота 52px = root header ───────────────────────── */}
       <div style={{
         position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
         width: '100%', maxWidth: 480, zIndex: 40,
-        padding: '12px 16px',
+        height: 52, padding: '0 16px',
         background: 'rgba(8,11,34,0.88)',
         backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(124,92,255,0.18)',
@@ -356,6 +380,41 @@ export default function CourseLearnPage() {
           }
 
 
+          /* ── VIP Gate ── */
+          if (item.k === 'vip') {
+            return (
+              <div
+                key="vip-gate"
+                style={{ position: 'absolute', top: item.y, left: 0, right: 0, height: VIP_GATE_H, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 8px', zIndex: 2 }}
+              >
+                <button
+                  onClick={() => setShowPayment(true)}
+                  style={{
+                    width: '100%', borderRadius: 16,
+                    background: 'linear-gradient(135deg, rgba(20,16,60,0.92) 0%, rgba(35,22,80,0.92) 100%)',
+                    border: '1px solid rgba(245,158,11,0.45)',
+                    boxShadow: '0 0 24px rgba(245,158,11,0.10)',
+                    padding: '10px 14px',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.32)', flexShrink: 0 }}>
+                    <span style={{ fontSize: 17 }}>👑</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <p style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#f59e0b' }}>VIP доступ</p>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(220,228,255,0.75)', marginTop: 2 }}>Следующие уроки требуют VIP</p>
+                  </div>
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <p style={{ fontSize: 15, fontWeight: 900, color: '#f59e0b' }}>$49</p>
+                    <p style={{ fontSize: 9, color: 'rgba(220,228,255,0.35)' }}>навсегда →</p>
+                  </div>
+                </button>
+              </div>
+            );
+          }
+
           /* ── Lesson node ── */
           if (item.k === 'lesson') {
             const { ls, cx, lesson } = item;
@@ -363,6 +422,7 @@ export default function CourseLearnPage() {
             const lk    = ls === 'locked';
             const lft   = cx - NODE_R;
             const isSpecial = lesson.title === 'Конспект' || lesson.title === 'Квиз';
+            const free  = isFree(item.mod.order, item.lessonIdx);
 
             return (
               <div
@@ -378,9 +438,9 @@ export default function CourseLearnPage() {
                 )}
 
                 <button
-                  disabled={lk && (isVip || item.mod.order === 0)}
+                  disabled={lk && (isVip || free)}
                   onClick={() => {
-                    if (!isVip && item.mod.order !== 0) { setShowPayment(true); return; }
+                    if (!isVip && !free) { setShowPayment(true); return; }
                     if (!lk) router.push(`/courses/${courseId}/learn/${lesson.id}`);
                   }}
                   style={{
@@ -427,12 +487,12 @@ export default function CourseLearnPage() {
                       <p style={{ fontSize: 9, color: '#a78bfa', fontWeight: 700, marginTop: 2 }}>● Текущий</p>
                       <button
                         onClick={() => {
-                          if (!isVip && item.mod.order !== 0) { setShowPayment(true); return; }
+                          if (!isVip && !free) { setShowPayment(true); return; }
                           router.push(`/courses/${courseId}/learn/${lesson.id}`);
                         }}
                         style={{ marginTop: 5, padding: '4px 10px', borderRadius: 8, background: 'linear-gradient(135deg,#6366f1,#a855f7)', color: '#fff', fontSize: 9, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 10px rgba(99,102,241,0.40)', whiteSpace: 'nowrap' }}
                       >
-                        {!isVip && item.mod.order !== 0 ? '👑 VIP навсегда — $49' : 'Перейти →'}
+                        {!isVip && !free ? '👑 VIP навсегда — $49' : 'Перейти →'}
                       </button>
                     </>
                   )}

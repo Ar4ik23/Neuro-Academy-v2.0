@@ -41,12 +41,13 @@ async function main() {
   await prisma.lesson.upsert({
     where: { id: 'l1-video' },
     update: {},
-    create: { id: 'l1-video', moduleId: m1.id, title: 'Введение в курс', order: 1, lessonType: 'VIDEO', duration: '~5 мин', isFree: true },
+    create: { id: 'l1-video', moduleId: m1.id, title: 'Введение в курс', order: 1, lessonType: 'VIDEO', duration: '~6 мин', isFree: true },
   });
+
   await prisma.lesson.upsert({
     where: { id: 'l1-text' },
     update: {},
-    create: { id: 'l1-text', moduleId: m1.id, title: 'Конспект', order: 2, lessonType: 'TEXT', duration: '~3 мин', isFree: true },
+    create: { id: 'l1-text', moduleId: m1.id, title: 'Конспект', order: 2, lessonType: 'TEXT', duration: '~7 мин', isFree: true },
   });
 
   // ─── Module 2 — Создание AI-модели ────────────────────────────────────────
@@ -79,6 +80,12 @@ async function main() {
   for (const l of m2lessons) {
     await prisma.lesson.upsert({ where: { id: l.id }, update: {}, create: { ...l, moduleId: m2.id, isFree: false } });
   }
+  // Replace video blocks for l2-1 and l2-2 (clear old ones first to avoid duplicates)
+  await prisma.lessonBlock.deleteMany({ where: { lessonId: 'l2-1', type: 'VIDEO' } });
+  await prisma.lessonBlock.create({ data: { lessonId: 'l2-1', type: 'VIDEO', order: 1, content: { url: 'https://pub-d38d77916ee1492ca4ee55002e27caca.r2.dev/ai%201-01.mp4' } } });
+
+  await prisma.lessonBlock.deleteMany({ where: { lessonId: 'l2-2', type: 'VIDEO' } });
+  await prisma.lessonBlock.create({ data: { lessonId: 'l2-2', type: 'VIDEO', order: 1, content: { url: 'https://pub-d38d77916ee1492ca4ee55002e27caca.r2.dev/ai%201-02.mp4' } } });
 
   // ─── Module 3 — Создание контента ─────────────────────────────────────────
   const m3 = await prisma.module.upsert({
@@ -124,19 +131,19 @@ async function main() {
 
   const m4lessons = [
     { id: 'l4-1',  title: 'Создание Тик Тока',    order: 1,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l4-2',  title: 'Прогрев Тик Тока',     order: 2,  lessonType: 'VIDEO', duration: '~10 мин' },
+    { id: 'l4-2',  title: 'Прогрев Тик Тока',     order: 2,  lessonType: 'PDF',   duration: '~5 мин'  },
     { id: 'l4-3',  title: 'Создание Инстаграмма', order: 3,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l4-4',  title: 'Инстаграмм подписки',  order: 4,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l4-5',  title: 'Linktree ссылка',      order: 5,  lessonType: 'VIDEO', duration: '~5 мин'  },
-    { id: 'l4-6',  title: 'Прогрев Инстаграмма',  order: 6,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l4-7',  title: 'Прогрев Threads',      order: 7,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l4-8',  title: 'Threads подписки',     order: 8,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l4-9',  title: 'Важно!!!',             order: 9,  lessonType: 'VIDEO', duration: '~5 мин'  },
+    { id: 'l4-4',  title: 'Инстаграмм подписки',  order: 4,  lessonType: 'PDF',   duration: '~5 мин'  },
+    { id: 'l4-5',  title: 'Linktree ссылка',      order: 5,  lessonType: 'PDF',   duration: '~5 мин'  },
+    { id: 'l4-6',  title: 'Прогрев Инстаграмма',  order: 6,  lessonType: 'PDF',   duration: '~5 мин'  },
+    { id: 'l4-7',  title: 'Прогрев Threads',      order: 7,  lessonType: 'PDF',   duration: '~5 мин'  },
+    { id: 'l4-8',  title: 'Threads подписки',     order: 8,  lessonType: 'PDF',   duration: '~5 мин'  },
+    { id: 'l4-9',  title: 'Важно!!!',             order: 9,  lessonType: 'PDF',   duration: '~5 мин'  },
     { id: 'l4-10', title: 'Конспект',             order: 10, lessonType: 'TEXT',  duration: '~7 мин'  },
     { id: 'l4-11', title: 'Квиз',                 order: 11, lessonType: 'QUIZ',  duration: '~5 мин'  },
   ];
   for (const l of m4lessons) {
-    await prisma.lesson.upsert({ where: { id: l.id }, update: {}, create: { ...l, moduleId: m4.id, isFree: false } });
+    await prisma.lesson.upsert({ where: { id: l.id }, update: { lessonType: l.lessonType, duration: l.duration }, create: { ...l, moduleId: m4.id, isFree: false } });
   }
 
   // ─── Module 5 — Монетизация ───────────────────────────────────────────────
@@ -155,16 +162,16 @@ async function main() {
   });
 
   const m5lessons = [
-    { id: 'l5-1', title: 'Переписка=Профит 1', order: 1, lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l5-2', title: 'Переписка=Профит 2', order: 2, lessonType: 'VIDEO', duration: '~10 мин' },
+    { id: 'l5-1', title: 'Переписка=Профит 1', order: 1, lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l5-2', title: 'Переписка=Профит 2', order: 2, lessonType: 'PDF',  duration: '~5 мин'  },
     { id: 'l5-3', title: 'СРМ и Чаты',         order: 3, lessonType: 'VIDEO', duration: '~10 мин' },
     { id: 'l5-4', title: 'Fanvue',              order: 4, lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l5-5', title: 'Fanvue (PDF)',         order: 5, lessonType: 'PDF',   duration: '~5 мин'  },
-    { id: 'l5-6', title: 'Конспект',            order: 6, lessonType: 'TEXT',  duration: '~7 мин'  },
-    { id: 'l5-7', title: 'Квиз',               order: 7, lessonType: 'QUIZ',  duration: '~5 мин'  },
+    { id: 'l5-5', title: 'Fanvue (PDF)',         order: 5, lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l5-6', title: 'Конспект',            order: 6, lessonType: 'TEXT', duration: '~7 мин'  },
+    { id: 'l5-7', title: 'Квиз',               order: 7, lessonType: 'QUIZ', duration: '~5 мин'  },
   ];
   for (const l of m5lessons) {
-    await prisma.lesson.upsert({ where: { id: l.id }, update: {}, create: { ...l, moduleId: m5.id, isFree: false } });
+    await prisma.lesson.upsert({ where: { id: l.id }, update: { lessonType: l.lessonType, duration: l.duration }, create: { ...l, moduleId: m5.id, isFree: false } });
   }
 
   // ─── Module 6 — Масштабирование ───────────────────────────────────────────
@@ -183,19 +190,19 @@ async function main() {
   });
 
   const m6lessons = [
-    { id: 'l6-1',  title: 'Масштабирование',    order: 1,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l6-2',  title: 'Affiliate-System 1', order: 2,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l6-3',  title: 'Affiliate-System 2', order: 3,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l6-4',  title: 'Affiliate-System 3', order: 4,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l6-5',  title: 'Affiliate-System 4', order: 5,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l6-6',  title: 'Final Start',        order: 6,  lessonType: 'VIDEO', duration: '~10 мин' },
+    { id: 'l6-1',  title: 'Масштабирование',    order: 1,  lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l6-2',  title: 'Affiliate-System 1', order: 2,  lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l6-3',  title: 'Affiliate-System 2', order: 3,  lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l6-4',  title: 'Affiliate-System 3', order: 4,  lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l6-5',  title: 'Affiliate-System 4', order: 5,  lessonType: 'PDF',  duration: '~5 мин'  },
+    { id: 'l6-6',  title: 'Final Start',        order: 6,  lessonType: 'PDF',  duration: '~5 мин'  },
     { id: 'l6-7',  title: '+18 Tomato',         order: 7,  lessonType: 'VIDEO', duration: '~10 мин' },
     { id: 'l6-8',  title: '+18 Xmode',          order: 8,  lessonType: 'VIDEO', duration: '~10 мин' },
-    { id: 'l6-9',  title: 'Конспект',           order: 9,  lessonType: 'TEXT',  duration: '~7 мин'  },
-    { id: 'l6-10', title: 'Квиз',               order: 10, lessonType: 'QUIZ',  duration: '~5 мин'  },
+    { id: 'l6-9',  title: 'Конспект',           order: 9,  lessonType: 'TEXT', duration: '~7 мин'  },
+    { id: 'l6-10', title: 'Квиз',               order: 10, lessonType: 'QUIZ', duration: '~5 мин'  },
   ];
   for (const l of m6lessons) {
-    await prisma.lesson.upsert({ where: { id: l.id }, update: {}, create: { ...l, moduleId: m6.id, isFree: false } });
+    await prisma.lesson.upsert({ where: { id: l.id }, update: { lessonType: l.lessonType, duration: l.duration }, create: { ...l, moduleId: m6.id, isFree: false } });
   }
 
   console.log('✅ Seed completed: course ai-model-2 with 6 modules and 46 lessons');

@@ -463,7 +463,7 @@ export default function ExamPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0b0f1a' }}>
+    <div className="flex flex-col" style={{ background: '#0b0f1a' }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-10 pb-4 shrink-0">
         <button

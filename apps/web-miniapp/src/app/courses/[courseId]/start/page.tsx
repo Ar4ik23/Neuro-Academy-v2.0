@@ -58,7 +58,7 @@ export default function CourseStartPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0b0f1a' }}>
+    <div className="flex flex-col" style={{ minHeight: '100%', background: '#05060d' }}>
 
       {/* ── Progress dots ────────────────────────────────────────────────── */}
       <div className="flex justify-center gap-2 pt-8 pb-4">
@@ -123,8 +123,8 @@ export default function CourseStartPage() {
               >
                 <span className="text-2xl">📚</span>
                 <div>
-                  <p className="text-[#94a3b8] text-xs">Первый модуль</p>
-                  <p className="text-[#e2e8f0] font-semibold text-sm mt-0.5">2 урока · ~15 минут</p>
+                  <p className="text-[#94a3b8] text-xs">Введение</p>
+                  <p className="text-[#e2e8f0] font-semibold text-sm mt-0.5">~6 минут</p>
                 </div>
               </div>
             </div>
@@ -230,8 +230,7 @@ export default function CourseStartPage() {
                         {mod.title}
                       </p>
                       <p className="text-xs mt-0.5" style={{ color: i === 0 ? '#6366f1' : '#334155' }}>
-                        {i === 0 ? '● Доступно · ' : '○ '}
-                        {mod.lessonsCount} уроков
+                        {i === 0 ? '● Доступно' : `○ ${mod.lessonsCount} уроков`}
                       </p>
                     </div>
                   </div>
@@ -269,7 +268,7 @@ export default function CourseStartPage() {
         >
           {currentStep === 0 && 'Продолжить →'}
           {currentStep === 1 && 'Продолжить →'}
-          {currentStep === 2 && 'Продолжить →'}
+          {currentStep === 2 && 'Следующая →'}
           {currentStep === 3 && 'Начать первый урок →'}
         </button>
       </div>

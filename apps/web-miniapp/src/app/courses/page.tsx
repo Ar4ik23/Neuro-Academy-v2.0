@@ -84,7 +84,7 @@ const CourseCard = memo(function CourseCard({ course }: { course: CourseDto }) {
         <h3 className="text-xl font-black text-text-1 leading-tight">{course.title}</h3>
         <div className="flex items-center gap-1.5">
           <span className="text-xs">👤</span>
-          <span className="text-xs font-medium" style={{ color: 'rgba(196,181,253,0.80)' }}>Ilya Chernyshov</span>
+          <span className="text-xs font-medium" style={{ color: 'rgba(196,181,253,0.80)' }}>Илья Чернышов</span>
         </div>
         <p className="text-sm text-text-2 leading-relaxed">{course.description}</p>
 

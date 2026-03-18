@@ -13,7 +13,7 @@ function buildLessonTypeMap(): Record<string, string> {
   const map: Record<string, string> = {};
   for (const mod of LESSON_CONTENT.modules) {
     for (const lesson of mod.lessons) {
-      map[lesson.id] = lesson.type;
+      if (lesson.type) map[lesson.id] = lesson.type;
     }
   }
   return map;

@@ -10,9 +10,6 @@
   },
   "dependencies": {
     "@neuro-academy/types": "*",
-    "@ton/core": "^0.63.1",
-    "@ton/crypto": "^3.3.0",
-    "@tonconnect/ui-react": "^2.4.2",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "next": "14.2.3",

@@ -506,7 +506,7 @@ export default function LessonPage() {
 
   if (!currentLesson) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0b0f1a' }}>
+      <div className="flex items-center justify-center h-full" style={{ background: '#0b0f1a' }}>
         <p className="text-[#475569] text-sm">Урок не найден</p>
       </div>
     );
@@ -543,14 +543,14 @@ export default function LessonPage() {
 
   if (isModuleComplete) {
     return (
-      <div className="min-h-screen flex flex-col pb-8" style={{ background: '#0b0f1a' }}>
+      <div className="flex flex-col h-full pb-8" style={{ background: '#0b0f1a' }}>
         <ModuleCompleteScreen onNext={handleNextModule} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0b0f1a' }}>
+    <div className="flex flex-col h-full" style={{ background: '#0b0f1a' }}>
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 pt-10 pb-4">

@@ -35,8 +35,7 @@ export const useAuth = () => {
         const { token, user: loggedInUser } = response.data;
         localStorage.setItem('auth_token', token);
         setUser(loggedInUser);
-      } catch (error) {
-        console.error('Auth failed', error);
+      } catch {
         // Не удаляем существующий токен — он может быть ещё валидным
       } finally {
         setLoading(false);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -11,9 +12,11 @@ interface ArtemisWidgetProps {
   lessonContext: string;
   prefill?: string;
   onPrefillUsed?: () => void;
+  isVip?: boolean;
 }
 
-export function ArtemisWidget({ lessonContext, prefill, onPrefillUsed }: ArtemisWidgetProps) {
+export function ArtemisWidget({ lessonContext, prefill, onPrefillUsed, isVip = true }: ArtemisWidgetProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -76,7 +79,14 @@ export function ArtemisWidget({ lessonContext, prefill, onPrefillUsed }: Artemis
       {/* Floating button — fixed, right side, respects centered 480px container */}
       {!open && (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            if (!isVip) {
+              localStorage.setItem('open_vip', '1');
+              router.push('/profile');
+              return;
+            }
+            setOpen(true);
+          }}
           style={{
             position: 'fixed',
             bottom: '80px',
@@ -84,18 +94,23 @@ export function ArtemisWidget({ lessonContext, prefill, onPrefillUsed }: Artemis
             width: '48px',
             height: '48px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            border: 'none',
+            background: isVip
+              ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+              : 'rgba(20,26,60,0.85)',
+            border: isVip ? 'none' : '1.5px solid rgba(180,200,255,0.15)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '22px',
-            boxShadow: '0 4px 16px rgba(99,102,241,0.5)',
+            boxShadow: isVip
+              ? '0 4px 16px rgba(99,102,241,0.5)'
+              : '0 2px 8px rgba(0,0,0,0.4)',
             zIndex: 1000,
+            opacity: isVip ? 1 : 0.70,
           }}
         >
-          🤖
+          {isVip ? '🤖' : '🔒'}
         </button>
       )}
 

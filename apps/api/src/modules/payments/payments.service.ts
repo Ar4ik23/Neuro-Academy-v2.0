@@ -1,31 +1,154 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
+import { TelegramService } from '../telegram/telegram.service';
 import { EnrollmentType } from '@prisma/client';
 
+const PRICE_USDT = 1; // TODO: вернуть 49 после теста
+const CRYPTO_PAY_API = 'https://pay.crypt.bot/api';
+const POLL_INTERVAL_MS = 30_000;
+
+interface PendingInvoice {
+  invoiceId: number;
+  userId: string;
+  courseId: string;
+  telegramId: string;
+}
+
 @Injectable()
-export class PaymentsService {
+export class PaymentsService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(PaymentsService.name);
+  private readonly cryptoPayToken = process.env.CRYPTO_PAY_TOKEN ?? '';
+  // key: invoiceId
+  private pending = new Map<number, PendingInvoice>();
+  private pollTimer: NodeJS.Timeout | null = null;
+
   constructor(
     private prisma: PrismaService,
     private enrollmentsService: EnrollmentsService,
+    private telegramService: TelegramService,
   ) {}
 
-  async processPurchase(userId: string, courseId: string, amount: number, currency: string, providerTxId?: string) {
-    // 1. Record the payment (Rule 9)
+  onModuleInit() {
+    if (!this.cryptoPayToken) {
+      this.logger.warn('CRYPTO_PAY_TOKEN not set — CryptoPay payments disabled');
+      return;
+    }
+    this.pollTimer = setInterval(() => this.pollPendingInvoices(), POLL_INTERVAL_MS);
+    this.logger.log('CryptoPay polling started (30s interval)');
+  }
+
+  onModuleDestroy() {
+    if (this.pollTimer) clearInterval(this.pollTimer);
+  }
+
+  async processPurchase(
+    userId: string,
+    courseId: string,
+    amount: number,
+    currency: string,
+    providerTxId?: string,
+  ) {
     const purchase = await this.prisma.purchase.create({
-      data: {
-        userId,
-        courseId,
-        amount,
-        currency,
-        status: 'COMPLETED',
-        providerTxId,
+      data: { userId, courseId, amount, currency, status: 'COMPLETED', providerTxId },
+    });
+    await this.enrollmentsService.grantAccess(userId, courseId, EnrollmentType.PURCHASED);
+    return purchase;
+  }
+
+  async createCryptoPayInvoice(
+    userId: string,
+    courseId: string,
+    telegramId: string,
+  ): Promise<string> {
+    if (!this.cryptoPayToken) throw new Error('CRYPTO_PAY_TOKEN не настроен');
+
+    const res = await fetch(`${CRYPTO_PAY_API}/createInvoice`, {
+      method: 'POST',
+      headers: {
+        'Crypto-Pay-API-Token': this.cryptoPayToken,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        asset: 'USDT',
+        amount: String(PRICE_USDT),
+        description: 'VIP-доступ к курсу Neuro Academy',
+        payload: `${userId}:${courseId}:${telegramId}`,
+        allow_comments: false,
+        allow_anonymous: false,
+        expires_in: 3600,
+      }),
     });
 
-    // 2. Grant access separately (Rule 9)
-    await this.enrollmentsService.grantAccess(userId, courseId, EnrollmentType.PURCHASED);
+    const data = (await res.json()) as any;
+    if (!data.ok) throw new Error(data.error?.name ?? 'CryptoPay API error');
 
-    return purchase;
+    const invoice = data.result;
+    this.pending.set(invoice.invoice_id, {
+      invoiceId: invoice.invoice_id,
+      userId,
+      courseId,
+      telegramId,
+    });
+    this.logger.log(`CryptoPay invoice created: id=${invoice.invoice_id} user=${userId}`);
+
+    return invoice.pay_url as string;
+  }
+
+  async getPaymentStatus(userId: string, courseId: string): Promise<'completed' | 'pending'> {
+    const purchase = await this.prisma.purchase.findFirst({
+      where: { userId, courseId, status: 'COMPLETED' },
+    });
+    return purchase ? 'completed' : 'pending';
+  }
+
+  private async pollPendingInvoices() {
+    if (this.pending.size === 0) return;
+
+    const ids = Array.from(this.pending.keys()).join(',');
+    try {
+      const res = await fetch(
+        `${CRYPTO_PAY_API}/getInvoices?invoice_ids=${ids}&status=paid`,
+        { headers: { 'Crypto-Pay-API-Token': this.cryptoPayToken } },
+      );
+      if (!res.ok) return;
+      const data = (await res.json()) as any;
+      const paidInvoices: any[] = data.result?.items ?? [];
+
+      for (const inv of paidInvoices) {
+        const payment = this.pending.get(inv.invoice_id);
+        if (!payment) continue;
+
+        this.pending.delete(inv.invoice_id);
+
+        // Idempotency check
+        const existing = await this.prisma.purchase.findFirst({
+          where: { providerTxId: String(inv.invoice_id) },
+        });
+        if (existing) continue;
+
+        try {
+          await this.processPurchase(
+            payment.userId,
+            payment.courseId,
+            PRICE_USDT,
+            'USDT',
+            String(inv.invoice_id),
+          );
+          this.logger.log(`CryptoPay paid: invoice=${inv.invoice_id} user=${payment.userId}`);
+
+          await this.telegramService.sendMessage(
+            payment.telegramId,
+            `✅ *VIP-доступ активирован!*\n\nОплата ${PRICE_USDT} USDT получена. Все модули курса теперь открыты.\n\n📱 Открой приложение и продолжай обучение!`,
+          );
+        } catch (e: any) {
+          this.logger.error(`Failed to process invoice ${inv.invoice_id}: ${e?.message}`);
+          // Вернуть в очередь чтобы повторить
+          this.pending.set(payment.invoiceId, payment);
+        }
+      }
+    } catch (e: any) {
+      this.logger.error(`CryptoPay poll error: ${e?.message}`);
+    }
   }
 }

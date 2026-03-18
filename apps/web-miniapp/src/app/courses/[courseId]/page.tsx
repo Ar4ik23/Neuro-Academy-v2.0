@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCourse } from "@/hooks/useCourse";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
 import { getExamState } from "@/store/examProgress";
+import { useVipStatus } from "@/hooks/useVipStatus";
 import type { ModuleDto, LessonSummaryDto } from "@neuro-academy/types";
 
 // ─── Module accent config ────────────────────────────────────────────────────
@@ -27,12 +28,13 @@ export default function CourseDetailPage({
   const { course, loading } = useCourse(params.courseId);
   const router = useRouter();
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
-  const [isDescExpanded, setIsDescExpanded] = useState(false);
   const { percent: rawPercent, isStarted } = useCourseProgress(params.courseId);
+  const isVip = useVipStatus(params.courseId);
   const [examPassed, setExamPassed] = useState(false);
   useEffect(() => {
     setExamPassed(getExamState(params.courseId).passed);
   }, [params.courseId]);
+
   const percent = examPassed ? 100 : rawPercent;
 
   if (loading) {
@@ -60,7 +62,8 @@ export default function CourseDetailPage({
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-10 animate-enter">
+    <>
+    <div className="flex flex-col pb-10 animate-enter">
 
       {/* ── СЕКЦИЯ 1 — Hero фото ────────────────────────────────────────────── */}
       <div className="relative w-full overflow-hidden" style={{ height: 200 }}>
@@ -83,7 +86,7 @@ export default function CourseDetailPage({
         </div>
       </div>
 
-      {/* ── СЕКЦИЯ 2 — Текст на фоне (не внутри фото) ───────────────────────── */}
+      {/* ── СЕКЦИЯ 2 — Заголовок ────────────────────────────────────────────── */}
       <div className="px-4 pt-5 pb-2">
         <h1 className="text-[22px] font-bold leading-tight" style={{ color: 'rgba(255,255,255,0.97)' }}>
           {course.title}
@@ -92,22 +95,39 @@ export default function CourseDetailPage({
           <span className="text-sm">👨‍🎓</span>
           <span className="text-xs" style={{ color: 'rgba(220,228,255,0.70)' }}>1500+ студентов уже прошли курс</span>
         </div>
-        <p className="text-sm leading-relaxed mt-2" style={{ color: 'rgba(220,228,255,0.75)' }}>
+
+        {/* Кнопка «Продолжить» — только если курс начат, сразу под заголовком */}
+        {isStarted && (
+          <div className="mt-4">
+            {!examPassed && (
+              <div className="mb-2">
+                <div className="flex justify-between items-center mb-1">
+                  <p className="text-[#94a3b8] text-xs">Прогресс</p>
+                  <p className="text-xs font-semibold" style={{ color: '#6366f1' }}>{percent}%</p>
+                </div>
+                <div className="progress-track h-1.5">
+                  <div className="progress-fill" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => router.push(`/courses/${params.courseId}/learn`)}
+              className="btn-primary w-full py-3.5 text-center rounded-2xl tracking-wide"
+              style={examPassed ? { background: 'linear-gradient(135deg,#10b981,#34d399)' } : undefined}
+            >
+              {examPassed ? '🏆 Курс пройден' : 'Продолжить →'}
+            </button>
+          </div>
+        )}
+
+        <p className="text-sm leading-relaxed mt-4" style={{ color: 'rgba(220,228,255,0.75)' }}>
           Запусти собственную AI-модель и выстрой систему контента, трафика и монетизации.
         </p>
-        <button
-          onClick={() => setIsDescExpanded(!isDescExpanded)}
-          className="flex items-center gap-1 mt-2 text-sm font-medium"
-          style={{ color: '#c4b5fd' }}
-        >
-          {isDescExpanded ? "Свернуть ↑" : "Подробнее ↓"}
-        </button>
       </div>
 
-      {/* ── СЕКЦИЯ 2b — Расширенное описание ────────────────────────────────── */}
+      {/* ── СЕКЦИЯ 2b — Полное описание (всегда открыто) ────────────────────── */}
       <div className="px-4 pb-2">
-        {isDescExpanded && (
-          <div className="mt-4 flex flex-col gap-5">
+        <div className="mt-2 flex flex-col gap-5">
 
             {/* Полное описание */}
             <div className="flex flex-col gap-3 text-sm leading-relaxed" style={{ color: 'rgba(220,228,255,0.72)' }}>
@@ -115,8 +135,7 @@ export default function CourseDetailPage({
               <p>Далее ты узнаешь, как выстроить систему регулярного контента и подготовить её к масштабированию. Мы разберём инструменты, которые позволяют быстро создавать десятки единиц контента, автоматизировать часть процессов и поддерживать стабильный поток публикаций.</p>
               <p>Следующий этап — привлечение аудитории. В курсе подробно показывается, как запускать трафик, продвигать AI-персонажа и превращать просмотры в активную аудиторию. Ты узнаешь, какие платформы лучше всего подходят для роста, какие форматы контента работают лучше всего и как правильно выстраивать стратегию продвижения.</p>
               <p>После этого мы переходим к монетизации. Ты поймёшь, какие способы заработка работают в этой нише, как подключать платные подписки, продавать контент и выстраивать систему дохода вокруг AI-персонажа.</p>
-              <p>При правильном выполнении всех шагов и активной работе с контентом многие ученики начинают получать первые результаты уже в первый месяц. У некоторых получается выйти на доход около $500–$1000, а дальше масштабирование системы позволяет постепенно увеличивать эти показатели.</p>
-              <p>Курс построен пошагово: каждый модуль — это следующий этап развития проекта, поэтому ты не просто изучаешь теорию, а постепенно создаёшь полноценную рабочую систему вокруг своего AI-персонажа.</p>
+              <p>При правильном выполнении всех шагов и активной работе с контентом многие ученики начинают получать первые результаты уже в первый месяц. Средний заработок наших выпускников составляет <span style={{ color: '#34d399', fontWeight: 700 }}>$3 000–$5 000 в месяц</span> и выше — в зависимости от вовлечённости и масштабирования системы.</p>
             </div>
 
             {/* 3 блока тем */}
@@ -185,22 +204,43 @@ export default function CourseDetailPage({
               </div>
             </div>
 
-            {/* Что ты получишь */}
-            <div className="rounded-2xl p-4" style={{ background: 'rgba(124,92,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,92,255,0.28)' }}>
-              <p className="text-[#818cf8] text-[11px] font-black tracking-widest uppercase mb-3">🎯 Что ты получишь</p>
-              <div className="flex flex-col gap-2">
+            {/* Наши преимущества */}
+            <div className="flex flex-col gap-3">
+              <p className="text-[11px] font-black tracking-widest uppercase" style={{ color: 'rgba(190,200,235,0.52)' }}>Почему этот курс</p>
+              <div className="grid grid-cols-2 gap-2.5">
                 {[
-                  'Работающую AI-модель под твоим управлением',
-                  'Систему генерации контента на автопилоте',
-                  'Трафик из TikTok и Threads без бюджета',
-                  'Первые $500–$1000 уже в первый месяц',
-                  'Сертификат об окончании курса',
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-2">
-                    <span className="text-[#6366f1] text-xs mt-0.5 shrink-0">✓</span>
-                    <p className="text-sm leading-relaxed" style={{ color: 'rgba(220,228,255,0.72)' }}>{item}</p>
+                  { icon: '⚡', title: 'Только практика', desc: 'Никакой воды — каждый урок это конкретный шаг к результату' },
+                  { icon: '🤖', title: 'AI-ассистент Nero', desc: 'Персональный помощник объяснит любой урок и проверит задание' },
+                  { icon: '💰', title: 'Реальный доход', desc: '$500–$1 000+ уже в первый месяц, дальше — больше' },
+                  { icon: '🎓', title: 'Поддержка куратора', desc: 'Личный куратор поможет на любом этапе и ответит на вопросы' },
+                  { icon: '🏆', title: 'Сертификат', desc: 'Официальный сертификат об окончании курса Nero Learning' },
+                  { icon: '🎁', title: 'Бонусы', desc: 'Бесплатные сервисы, промокоды и закрытые материалы' },
+                ].map(({ icon, title, desc }) => (
+                  <div key={title} className="rounded-2xl p-3 flex flex-col gap-1.5"
+                    style={{ background: 'rgba(32,42,92,0.32)', border: '1px solid rgba(180,200,255,0.09)' }}>
+                    <span className="text-xl leading-none">{icon}</span>
+                    <p className="text-[12px] font-semibold leading-tight" style={{ color: '#e2e8f0' }}>{title}</p>
+                    <p className="text-[10px] leading-relaxed" style={{ color: 'rgba(190,200,235,0.50)' }}>{desc}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Что ты получишь */}
+              <div className="rounded-2xl p-4 mt-1" style={{ background: 'rgba(124,92,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(124,92,255,0.28)' }}>
+                <p className="text-[#818cf8] text-[11px] font-black tracking-widest uppercase mb-3">🎯 Что ты получишь</p>
+                <div className="flex flex-col gap-2">
+                  {[
+                    'Работающую AI-модель под твоим управлением',
+                    'Систему генерации контента на автопилоте',
+                    'Трафик из TikTok и Threads без бюджета',
+                    'Средний заработок $3 000–$5 000+ в месяц',
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-2">
+                      <span className="text-[#6366f1] text-xs mt-0.5 shrink-0">✓</span>
+                      <p className="text-sm leading-relaxed" style={{ color: 'rgba(220,228,255,0.72)' }}>{item}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -208,7 +248,6 @@ export default function CourseDetailPage({
             <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: 'rgba(32,42,92,0.38)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(180,200,255,0.12)' }}>
               <p className="text-[11px] font-black tracking-widest uppercase" style={{ color: 'rgba(190,200,235,0.52)' }}>Об авторе</p>
               <div className="flex items-center gap-3">
-                {/* Gradient ring like Instagram */}
                 <img
                   src="/autor.png"
                   alt="Ilya Chernyshov"
@@ -237,75 +276,19 @@ export default function CourseDetailPage({
             </div>
 
           </div>
-        )}
       </div>
 
-      {/* ── CTA кнопка ──────────────────────────────────────────────────────── */}
-      <div className="px-4 mt-5">
-        {isStarted && (
-          <div className="mb-3">
-            <div className="flex justify-between items-center mb-1.5">
-              <p className="text-[#94a3b8] text-xs">Прогресс</p>
-              <p className="text-xs font-semibold" style={{ color: examPassed ? '#10b981' : '#6366f1' }}>
-                {examPassed ? '✓ Пройден' : `${percent}%`}
-              </p>
-            </div>
-            <div className="progress-track h-2">
-              <div
-                className="progress-fill"
-                style={{
-                  width: `${percent}%`,
-                  background: examPassed ? 'linear-gradient(90deg,#10b981,#34d399)' : undefined,
-                }}
-              />
-            </div>
-          </div>
-        )}
-        <button
-          onClick={() => {
-            if (isStarted) {
-              router.push(`/courses/${params.courseId}/learn`);
-            } else {
-              router.push(`/courses/${params.courseId}/start`);
-            }
-          }}
-          className="btn-primary w-full py-4 text-center rounded-2xl tracking-wide"
-          style={examPassed ? { background: 'linear-gradient(135deg,#10b981,#34d399)' } : undefined}
-        >
-          {examPassed ? '🏆 Курс пройден' : isStarted ? 'Продолжить →' : 'Начать курс →'}
-        </button>
-      </div>
 
-      {/* ── Блок Nero-бота — только до старта курса ─────────────────────────── */}
+      {/* ── Кнопка «Начать курс» — только если не начат ───────────────────── */}
       {!isStarted && (
-        <>
-          <div className="mx-4 mt-6 border-t border-[rgba(255,255,255,0.06)]" />
-          <div
-            className="mx-4 mt-4 rounded-2xl p-4"
-            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.20)" }}
+        <div className="px-4 mt-4">
+          <button
+            onClick={() => router.push(`/courses/${params.courseId}/start`)}
+            className="btn-primary w-full py-4 text-center rounded-2xl tracking-wide"
           >
-            <div className="flex gap-3 items-start">
-              <span className="text-2xl">🤖</span>
-              <div className="flex-1">
-                <p className="text-[#f59e0b] text-xs font-semibold uppercase tracking-wider">
-                  Nero
-                </p>
-                <p className="text-[#e2e8f0] text-sm mt-1 leading-relaxed">
-                  Начни с первого модуля.<br />
-                  Он займёт всего 20 минут.
-                </p>
-                <button
-                  onClick={() => router.push(`/courses/${params.courseId}/start`)}
-                  className="mt-3 px-4 py-1.5 rounded-full text-sm font-semibold"
-                  style={{ background: "rgba(245,158,11,0.20)", color: "#f59e0b",
-                           border: "1px solid rgba(245,158,11,0.35)" }}
-                >
-                  Начать →
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
+            Начать курс →
+          </button>
+        </div>
       )}
 
       {/* ── СЕКЦИЯ 6 — Путь модулей ─────────────────────────────────────────── */}
@@ -319,20 +302,51 @@ export default function CourseDetailPage({
             const accent     = MODULE_ACCENTS[mod.order] ?? MODULE_ACCENTS[0];
             const isFirst    = index === 0;
             const isVipStart = index === 1;
+            const isLocked   = !isFirst && !isVip;
             const isExpanded = expandedModule === mod.id;
 
             return (
               <div key={mod.id}>
 
-                {/* ── VIP divider — один раз перед модулем 1 ── */}
-                {isVipStart && (
+                {/* ── VIP gate — один раз перед модулем 1 ── */}
+                {isVipStart && !isVip && (
+                  <div className="mb-4 mt-2">
+                    <button
+                      onClick={() => {
+                        localStorage.setItem('open_vip', '1');
+                        router.push('/profile');
+                      }}
+                      className="w-full rounded-2xl overflow-hidden active:scale-[0.98] transition-all text-left"
+                      style={{ background: 'linear-gradient(135deg, rgba(20,16,60,0.90) 0%, rgba(35,22,80,0.90) 100%)', border: '1px solid rgba(245,158,11,0.40)', boxShadow: '0 0 30px rgba(245,158,11,0.08)' }}
+                    >
+                      <div className="flex items-center gap-3 px-4 py-3.5">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                          style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.30)' }}>
+                          <span className="text-base">👑</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-black tracking-widest uppercase" style={{ color: '#f59e0b' }}>VIP доступ</p>
+                          <p className="text-[12px] font-semibold leading-tight mt-0.5" style={{ color: 'rgba(220,228,255,0.80)' }}>Модули 1–5 открываются после покупки</p>
+                        </div>
+                        <div className="flex flex-col items-end shrink-0 gap-0.5">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-[11px] font-semibold line-through" style={{ color: 'rgba(220,228,255,0.30)' }}>$149</span>
+                            <span className="text-base font-black" style={{ color: '#f59e0b' }}>$49</span>
+                          </div>
+                          <span className="text-[10px] font-semibold" style={{ color: 'rgba(220,228,255,0.40)' }}>навсегда →</span>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+                {isVipStart && isVip && (
                   <div className="flex items-center gap-3 mb-3 mt-1">
-                    <div style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, transparent, rgba(245,158,11,0.50))' }} />
+                    <div style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, transparent, rgba(245,158,11,0.40))' }} />
                     <span className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"
-                      style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.40)', letterSpacing: '0.12em' }}>
-                      VIP
+                      style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.30)' }}>
+                      👑 VIP
                     </span>
-                    <div style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, rgba(245,158,11,0.50), transparent)' }} />
+                    <div style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, rgba(245,158,11,0.40), transparent)' }} />
                   </div>
                 )}
 
@@ -358,10 +372,11 @@ export default function CourseDetailPage({
                   <div
                     className="rounded-2xl overflow-hidden cursor-pointer transition-all active:scale-[0.98]"
                     style={{
-                      background: isFirst ? accent.bg : "rgba(32,42,92,0.28)",
+                      background: isLocked ? 'rgba(20,26,60,0.35)' : isFirst ? accent.bg : "rgba(32,42,92,0.28)",
                       backdropFilter: 'blur(12px)',
                       WebkitBackdropFilter: 'blur(12px)',
-                      border: isFirst ? `1px solid ${accent.border}` : "1px solid rgba(180,200,255,0.10)",
+                      border: isLocked ? '1px solid rgba(255,255,255,0.06)' : isFirst ? `1px solid ${accent.border}` : "1px solid rgba(180,200,255,0.10)",
+                      opacity: isLocked ? 0.75 : 1,
                     }}
                     onClick={() => setExpandedModule(isExpanded ? null : mod.id)}
                   >
@@ -369,7 +384,8 @@ export default function CourseDetailPage({
                     <div className="flex items-center justify-between p-3.5">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-[10px] text-[#475569] font-black tracking-widest uppercase">
+                          <p className="font-black tracking-widest uppercase"
+                            style={{ fontSize: 10, color: isLocked ? 'rgba(71,85,105,0.60)' : '#475569' }}>
                             Модуль {mod.order}
                           </p>
                           {isFirst && (
@@ -379,10 +395,11 @@ export default function CourseDetailPage({
                             </span>
                           )}
                         </div>
-                        <h3 className="text-[14px] font-semibold text-[#e2e8f0] leading-tight mt-0.5">
+                        <h3 className="text-[14px] font-semibold leading-tight mt-0.5"
+                          style={{ color: isLocked ? 'rgba(220,228,255,0.35)' : '#e2e8f0' }}>
                           {mod.title}
                         </h3>
-                        <p className="text-[11px] mt-0.5" style={{ color: 'rgba(190,200,235,0.45)' }}>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'rgba(190,200,235,0.35)' }}>
                           {mod.lessons.filter((l: LessonSummaryDto) => !['Конспект','Квиз'].includes(l.title)).length} уроков
                         </p>
                       </div>
@@ -479,5 +496,8 @@ export default function CourseDetailPage({
         </div>
       </div>
     </div>
+
+
+    </>
   );
 }

@@ -4,6 +4,9 @@ import Script from "next/script";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { DynamicBackground } from "@/components/DynamicBackground";
+import { AuthInit } from "@/components/AuthInit";
+import { VipBadge } from "@/components/VipBadge";
+import { ScrollReset } from "@/components/ScrollReset";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
@@ -26,12 +29,20 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className={`${inter.className} text-[#fef9f0] min-h-screen antialiased flex items-center justify-center bg-[#05060d]`}>
+      <body className={`${inter.className} text-[#fef9f0] antialiased bg-[#05060d]`}
+        style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
         <div
           id="app-container"
-          className="w-full max-w-[480px] h-screen flex flex-col relative overflow-hidden shadow-2xl border-x border-[rgba(255,255,255,0.07)]"
+          className="w-full max-w-[480px] overflow-hidden shadow-2xl border-x border-[rgba(255,255,255,0.07)]"
+          style={{
+            position: 'fixed',
+            top: 0,
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+          }}
         >
-          {/* Layer 1 — background image, slightly softened. Filter here only, not on container */}
+          {/* Layer 1 — background image, slightly softened */}
           <div
             id="app-bg-layer"
             className="absolute inset-0 z-0"
@@ -40,12 +51,12 @@ export default function RootLayout({
               backgroundPosition: 'center 100%',
               backgroundRepeat: 'no-repeat',
               filter: 'blur(2px) brightness(0.78)',
-              transform: 'scale(1.03)', /* hide blur edges */
+              transform: 'scale(1.03)',
               transformOrigin: 'center',
             }}
           />
 
-          {/* Layer 2 — soft gradient overlay: keeps background visible */}
+          {/* Layer 2 — soft gradient overlay */}
           <div
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
@@ -53,13 +64,15 @@ export default function RootLayout({
             }}
           />
 
-          {/* Dynamic background client logic */}
           <DynamicBackground />
+          <ScrollReset />
+          <AuthInit />
 
-          {/* Header — translucent glass, cool navy */}
+          {/* Header — pinned to top, never shifts */}
           <header
-            className="px-6 py-4 border-b shrink-0 relative z-10"
+            className="absolute top-0 left-0 right-0 px-6 border-b z-20 flex items-center justify-between"
             style={{
+              height: 52,
               background: 'rgba(18,22,58,0.52)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
@@ -67,12 +80,16 @@ export default function RootLayout({
             }}
           >
             <div className="text-[10px] font-black tracking-[0.2em] text-[#f59e0b] uppercase">
-              Nero
+              Nero Learning
             </div>
+            <VipBadge />
           </header>
 
-          {/* Main */}
-          <main className="flex-1 overflow-y-auto pb-16 relative z-10">
+          {/* Main — fills the space between header and nav, never causes reflow */}
+          <main
+            className="absolute left-0 right-0 overflow-y-auto z-10"
+            style={{ top: 52, bottom: 64 }}
+          >
             <ErrorBoundary>{children}</ErrorBoundary>
           </main>
 

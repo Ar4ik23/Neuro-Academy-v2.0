@@ -20,18 +20,6 @@ function IconProfile({ active }: { active: boolean }) {
   );
 }
 
-function IconHome({ active }: { active: boolean }) {
-  const sw = active ? 2 : 1.6;
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
-      {/* Roof + walls — peak at (12,3), walls 3..21, bottom at y=22 */}
-      <path d="M3 10L12 3l9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10z" />
-      {/* Door — centered: x=9..15, y=15..22 */}
-      <path d="M9 22V15h6v7" />
-    </svg>
-  );
-}
 
 function IconCourses({ active }: { active: boolean }) {
   const sw = active ? 2 : 1.6;
@@ -45,10 +33,9 @@ function IconCourses({ active }: { active: boolean }) {
   );
 }
 
-/* ── Nav items: Nero | Главная (center) | Курсы ─────────────────────────── */
+/* ── Nav items: Профиль | Курсы ─────────────────────────────────────────── */
 const navItems = [
   { label: "Профиль", path: "/profile", Icon: IconProfile },
-  { label: "Главная", path: "/",        Icon: IconHome    },
   { label: "Курсы",   path: "/courses", Icon: IconCourses },
 ];
 

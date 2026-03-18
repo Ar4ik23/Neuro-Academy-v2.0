@@ -16,7 +16,7 @@ const COURSE_MOCK = {
     'Создать собственную AI-модель',
     'Генерировать контент автоматически',
     'Привлекать трафик через TikTok и Threads',
-    'Получить первые доходы $500–$1000',
+    'Получить первые доходы $500–$1000 в первый месяц',
   ],
   modules: [
     { id: '1', title: 'Введение',            emoji: '💡', lessonsCount: 2  },
@@ -203,17 +203,13 @@ export default function CourseStartPage() {
               {COURSE_MOCK.modules.length} модулей · всё начинается сейчас
             </p>
 
-            <div className="relative mt-6">
-              <div
-                className="absolute left-[27px] top-10 bottom-0 w-[2px]"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
-              />
-
-              <div className="flex flex-col gap-3">
-                {COURSE_MOCK.modules.map((mod, i) => (
-                  <div key={mod.id} className="flex gap-4 items-center relative">
+            <div className="mt-6 flex flex-col">
+              {COURSE_MOCK.modules.map((mod, i) => (
+                <div key={mod.id} className="flex gap-4">
+                  {/* Left: icon + connector below */}
+                  <div className="flex flex-col items-center flex-shrink-0" style={{ width: 56 }}>
                     <div
-                      className="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center z-10 text-xl"
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl"
                       style={{
                         background: i === 0 ? 'rgba(99,102,241,0.20)' : 'rgba(255,255,255,0.04)',
                         border:     i === 0 ? '1px solid rgba(99,102,241,0.50)' : '1px solid rgba(255,255,255,0.08)',
@@ -222,8 +218,14 @@ export default function CourseStartPage() {
                     >
                       {mod.emoji}
                     </div>
+                    {i < COURSE_MOCK.modules.length - 1 && (
+                      <div style={{ width: 2, flexGrow: 1, minHeight: 12, background: 'rgba(255,255,255,0.07)' }} />
+                    )}
+                  </div>
 
-                    <div className="flex-1">
+                  {/* Right: text aligned to icon */}
+                  <div className="flex-1 flex items-center" style={{ minHeight: 56, paddingBottom: i < COURSE_MOCK.modules.length - 1 ? 12 : 0 }}>
+                    <div>
                       <p className="text-sm font-semibold" style={{ color: i === 0 ? '#e2e8f0' : '#475569' }}>
                         {mod.title}
                       </p>
@@ -233,8 +235,8 @@ export default function CourseStartPage() {
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -265,9 +267,9 @@ export default function CourseStartPage() {
             boxShadow:  '0 0 28px rgba(99,102,241,0.35)',
           }}
         >
-          {currentStep === 0 && 'Начать модуль 1 →'}
+          {currentStep === 0 && 'Продолжить →'}
           {currentStep === 1 && 'Продолжить →'}
-          {currentStep === 2 && 'Погнали →'}
+          {currentStep === 2 && 'Продолжить →'}
           {currentStep === 3 && 'Начать первый урок →'}
         </button>
       </div>

@@ -107,7 +107,7 @@ const CourseCard = memo(function CourseCard({ course }: { course: CourseDto }) {
           <span className="text-xs px-3 py-1 rounded-full font-medium"
                 style={{ background: "rgba(245,158,11,0.15)", color: "#fbbf24",
                          border: "1px solid rgba(245,158,11,0.30)" }}>
-            от 2000$
+            от 3000$
           </span>
         </div>
 

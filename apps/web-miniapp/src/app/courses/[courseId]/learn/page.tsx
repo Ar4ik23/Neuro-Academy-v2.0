@@ -6,6 +6,8 @@ import { useCourse } from '@/hooks/useCourse';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
 import { getExamState } from '@/store/examProgress';
 import { getLastLesson } from '@/data/course-map';
+import { useVipStatus } from '@/hooks/useVipStatus';
+import { PaymentModal } from '@/components/PaymentModal';
 import type { ModuleDto, LessonSummaryDto } from '@neuro-academy/types';
 
 // ── Layout constants ──────────────────────────────────────────────────────────
@@ -58,9 +60,12 @@ export default function CourseLearnPage() {
   const percent   = examState.passed ? 100 : rawPercent;
 
   const [congratsModule, setCongratsModule] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const isVip = useVipStatus(courseId);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [cw, setCw] = useState(332);
+  // Перезапускаем observer когда course загрузился (containerRef.current null во время скелетона)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -68,20 +73,22 @@ export default function CourseLearnPage() {
     const ro = new ResizeObserver(() => setCw(el.clientWidth));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [course?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const didScrollRef = useRef(false);
+  // Всегда показываем низ страницы при открытии (модуль 0 снизу)
+  // Double-rAF гарантирует что DOM полностью отрисован перед скроллом
   useEffect(() => {
-    // Scroll once when both layout width and progress are ready
-    if (!progress?.currentLessonId || cw === 0 || didScrollRef.current) return;
-    didScrollRef.current = true;
-    // Two rAFs ensure the DOM has fully painted before scrolling
+    if (!course) return;
+    let cancelled = false;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        document.getElementById('path-current')?.scrollIntoView({ behavior: 'instant', block: 'center' });
+        if (cancelled) return;
+        const main = document.querySelector('main');
+        if (main) main.scrollTop = main.scrollHeight;
       });
     });
-  }, [progress?.currentLessonId, cw]);
+    return () => { cancelled = true; };
+  }, [course?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!course || !progress) return;
@@ -371,8 +378,11 @@ export default function CourseLearnPage() {
                 )}
 
                 <button
-                  disabled={lk}
-                  onClick={() => !lk && router.push(`/courses/${courseId}/learn/${lesson.id}`)}
+                  disabled={lk && (isVip || item.mod.order === 0)}
+                  onClick={() => {
+                    if (!isVip && item.mod.order !== 0) { setShowPayment(true); return; }
+                    if (!lk) router.push(`/courses/${courseId}/learn/${lesson.id}`);
+                  }}
                   style={{
                     width: NODE_D, height: NODE_D, borderRadius: isSpecial ? 32 : 20,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -416,10 +426,13 @@ export default function CourseLearnPage() {
                     <>
                       <p style={{ fontSize: 9, color: '#a78bfa', fontWeight: 700, marginTop: 2 }}>● Текущий</p>
                       <button
-                        onClick={() => router.push(`/courses/${courseId}/learn/${lesson.id}`)}
+                        onClick={() => {
+                          if (!isVip && item.mod.order !== 0) { setShowPayment(true); return; }
+                          router.push(`/courses/${courseId}/learn/${lesson.id}`);
+                        }}
                         style={{ marginTop: 5, padding: '4px 10px', borderRadius: 8, background: 'linear-gradient(135deg,#6366f1,#a855f7)', color: '#fff', fontSize: 9, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 10px rgba(99,102,241,0.40)', whiteSpace: 'nowrap' }}
                       >
-                        Перейти →
+                        {!isVip && item.mod.order !== 0 ? '👑 VIP навсегда — $49' : 'Перейти →'}
                       </button>
                     </>
                   )}
@@ -498,6 +511,10 @@ export default function CourseLearnPage() {
           </div>
         );
       })()}
+
+      {showPayment && (
+        <PaymentModal courseId={courseId} onClose={() => setShowPayment(false)} />
+      )}
 
     </div>
   );

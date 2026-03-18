@@ -8,6 +8,7 @@ import type { LessonBlock, VideoBlockData, TextBlockData, QuizBlockData, PdfBloc
 import { useCourseProgress } from '@/hooks/useCourseProgress';
 import { getNote, saveNote } from '@/store/notes';
 import { ArtemisWidget } from '@/features/learning/components/ArtemisWidget';
+import { useVipStatus } from '@/hooks/useVipStatus';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    BLOCK REGISTRY — рендер по типу блока, без if-else (Правило №3)
@@ -481,6 +482,7 @@ export default function LessonPage() {
   const [noteModal,        setNoteModal]         = useState<{ open: boolean; selectedText: string; comment: string }>({ open: false, selectedText: '', comment: '' });
 
   const { complete } = useCourseProgress(courseId);
+  const isVip = useVipStatus(courseId);
   const isQuizLesson = currentLesson?.type === 'QUIZ';
 
   // Text selection popup (only in non-quiz lessons)
@@ -805,6 +807,7 @@ export default function LessonPage() {
           lessonContext={`${LESSON_CONTENT.modules[currentModuleIndex]?.title} — ${currentLesson.title}`}
           prefill={artemiosPrefill}
           onPrefillUsed={() => setArtemiosPrefill('')}
+          isVip={isVip}
         />
       )}
     </div>

@@ -41,6 +41,20 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     if (this.bot) this.bot.stop('SIGTERM');
   }
 
+  async sendMessage(telegramId: string | bigint, text: string) {
+    if (!this.bot) {
+      this.logger.warn('Bot not initialized — cannot send message');
+      return;
+    }
+    try {
+      await this.bot.telegram.sendMessage(telegramId.toString(), text, {
+        parse_mode: 'Markdown',
+      });
+    } catch (e: any) {
+      this.logger.error(`sendMessage failed for ${telegramId}: ${e?.message}`);
+    }
+  }
+
   // Прямой HTTP вызов Bot API — обходит возможные проблемы Telegraf обёртки
   private async setMenuButton(token: string, tmaUrl: string) {
     try {

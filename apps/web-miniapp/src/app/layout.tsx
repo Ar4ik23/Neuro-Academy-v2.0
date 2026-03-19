@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { DynamicBackground } from "@/components/DynamicBackground";
@@ -90,10 +89,6 @@ export default function RootLayout({
 
           <BottomNav />
         </div>
-        <Script
-          src="/telegram-web-app.js"
-          strategy="beforeInteractive"
-        />
       </body>
     </html>
   );

@@ -11,7 +11,7 @@ export default function CoursesPage() {
   const { courses, loading } = useCoursesList();
 
   return (
-    <div className="flex flex-col gap-6 p-5">
+    <div className="flex flex-col gap-6 p-5 md:p-8 lg:p-10">
       <header className="mb-2">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Курсы
@@ -20,8 +20,8 @@ export default function CoursesPage() {
       </header>
 
       {loading ? (
-        <div className="flex flex-col gap-5">
-          {[1].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[1, 2, 3].map((i) => (
             <div key={i} className="card animate-pulse">
               <div className="h-44 w-full rounded-t-2xl bg-white/5" />
               <div className="p-5 flex flex-col gap-3">
@@ -33,7 +33,7 @@ export default function CoursesPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {courses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}

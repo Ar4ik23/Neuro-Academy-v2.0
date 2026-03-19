@@ -768,7 +768,7 @@ export default function ProfilePage() {
   const [showPayment, setShowPayment] = useState(false);
 
   return (
-    <div className="flex flex-col p-4 pt-10 pb-24 gap-4">
+    <div className="flex flex-col p-4 pt-10 pb-24 gap-4 md:p-8 md:pt-10 lg:p-10">
 
       <div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-0.5">
@@ -777,10 +777,12 @@ export default function ProfilePage() {
         <p className="text-xs" style={{ color: 'rgba(220,228,255,0.55)' }}>Nero Learning</p>
       </div>
 
-      <VipWidget isVip={isVip} onBuy={() => setShowPayment(true)} />
-      <StatsWidget isVip={isVip} />
-      <NotesWidget />
-      <NeroWidget isVip={isVip} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <VipWidget isVip={isVip} onBuy={() => setShowPayment(true)} />
+        <StatsWidget isVip={isVip} />
+        <NotesWidget />
+        <NeroWidget isVip={isVip} />
+      </div>
 
       {showPayment && (
         <PaymentModal courseId={courseId} onClose={() => setShowPayment(false)} />

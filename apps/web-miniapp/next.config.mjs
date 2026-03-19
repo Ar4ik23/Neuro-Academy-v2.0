@@ -2,6 +2,7 @@
 const API_ORIGIN = process.env.BACKEND_ORIGIN ?? 'http://localhost:3001';
 
 const nextConfig = {
+  output: 'standalone',
   transpilePackages: ['@neuro-academy/types'],
   async rewrites() {
     return [

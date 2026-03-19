@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="ru" className="dark">
       <head>
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="https://telegram.org/js/telegram-web-app.js" />
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
       </head>
       <body className={`${inter.className} text-[#fef9f0] antialiased bg-[#05060d]`}
         style={{ margin: 0, padding: 0, overflow: 'hidden' }}>

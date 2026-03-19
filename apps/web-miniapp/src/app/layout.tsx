@@ -91,7 +91,7 @@ export default function RootLayout({
           <BottomNav />
         </div>
         <Script
-          src="https://telegram.org/js/telegram-web-app.js"
+          src="/telegram-web-app.js"
           strategy="beforeInteractive"
         />
       </body>

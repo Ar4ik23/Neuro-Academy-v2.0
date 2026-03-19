@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { DynamicBackground } from "@/components/DynamicBackground";
@@ -22,10 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="dark">
-      <head>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-      </head>
+      <head />
       <body className={`${inter.className} text-[#fef9f0] antialiased bg-[#05060d]`}
         style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
         <div
@@ -92,6 +90,10 @@ export default function RootLayout({
 
           <BottomNav />
         </div>
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );

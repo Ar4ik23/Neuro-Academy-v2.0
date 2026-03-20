@@ -75,7 +75,7 @@ interface PaymentModalProps {
 
 type Step = 'select' | 'address' | 'sent';
 
-export function PaymentModal({ onClose }: PaymentModalProps) {
+export function PaymentModal({ onClose, courseId }: PaymentModalProps) {
   const [step, setStep] = useState<Step>('select');
   const [selected, setSelected] = useState<typeof WALLETS[0] | null>(null);
   const [copied, setCopied] = useState(false);

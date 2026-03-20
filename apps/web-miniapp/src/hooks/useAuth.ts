@@ -34,6 +34,7 @@ export const useAuth = () => {
         const response = await apiClient.post<AuthResponseDto>('/auth/login', { initData });
         const { token, user: loggedInUser } = response.data;
         localStorage.setItem('auth_token', token);
+        window.dispatchEvent(new Event('auth-completed'));
         setUser(loggedInUser);
       } catch (err) {
         console.error('[Auth] Login failed:', err);

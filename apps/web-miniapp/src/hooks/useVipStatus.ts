@@ -42,9 +42,11 @@ export function useVipStatus(courseId: string) {
 
     window.addEventListener('storage', checkLocal);
     window.addEventListener('vip-status-changed', checkLocal);
+    window.addEventListener('auth-completed', checkApi);
     return () => {
       window.removeEventListener('storage', checkLocal);
       window.removeEventListener('vip-status-changed', checkLocal);
+      window.removeEventListener('auth-completed', checkApi);
     };
   }, [courseId]);
 

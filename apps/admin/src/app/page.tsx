@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [grantingId, setGrantingId] = useState<string | null>(null);
   const [activationUrl, setActivationUrl] = useState('');
   const [manualUsername, setManualUsername] = useState('');
+  const [manualTelegramId, setManualTelegramId] = useState('');
   const [manualStatus, setManualStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
   const [manualMsg, setManualMsg] = useState('');
   const [savedSecret, setSavedSecret] = useState('');
@@ -85,7 +86,11 @@ export default function AdminDashboard() {
       const res = await fetch(`${API_URL}/payments/admin/grant-vip`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-secret': savedSecret },
-        body: JSON.stringify({ username: manualUsername.trim(), courseId: COURSE_ID }),
+        body: JSON.stringify({
+          username: manualUsername.trim() || undefined,
+          telegramId: manualTelegramId.trim() || undefined,
+          courseId: COURSE_ID,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.message || `Ошибка ${res.status}`);
@@ -218,18 +223,26 @@ export default function AdminDashboard() {
         {/* Выдать вручную */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
           <h2 className="text-lg font-bold mb-1">Выдать вручную</h2>
-          <p className="text-slate-500 text-sm mb-5">Введи @username пользователя напрямую</p>
+          <p className="text-slate-500 text-sm mb-5">Telegram ID или @username</p>
           <form onSubmit={handleManualGrant} className="flex flex-col gap-3">
             <input
               type="text"
-              placeholder="@username"
+              placeholder="Telegram ID (например: 6947754616)"
+              value={manualTelegramId}
+              onChange={e => setManualTelegramId(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 outline-none focus:border-indigo-500 font-mono"
+            />
+            <p className="text-center text-xs text-slate-600">— или —</p>
+            <input
+              type="text"
+              placeholder="@username (если открывал приложение)"
               value={manualUsername}
               onChange={e => setManualUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 outline-none focus:border-indigo-500"
             />
             <button
               type="submit"
-              disabled={manualStatus === 'loading' || !manualUsername.trim()}
+              disabled={manualStatus === 'loading' || (!manualUsername.trim() && !manualTelegramId.trim())}
               className="w-full py-3 rounded-xl font-bold transition-colors disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: 'white' }}
             >

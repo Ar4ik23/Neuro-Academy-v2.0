@@ -6,6 +6,11 @@ import { createPortal } from 'react-dom';
 const PRICE_USDT = 49;
 const PRICE_BTC = '0.00049'; // ~49 USD at ~100k rate
 
+// USDT → зелёный, TON/BTC → синий/оранжевый
+const USDT_COLOR = '#26a17b';
+const TON_COLOR  = '#0098EA';
+const BTC_COLOR  = '#F7931A';
+
 const WALLETS = [
   {
     id: 'usdt-trc20',
@@ -13,26 +18,8 @@ const WALLETS = [
     network: 'TRC-20 (TRON)',
     address: 'TXB4oU2KPCbFQz9FdFvzfnyazscuuXh4BY',
     amount: `${PRICE_USDT} USDT`,
-    color: '#26a17b',
+    color: USDT_COLOR,
     badge: 'Рекомендуем · низкая комиссия',
-  },
-  {
-    id: 'usdt-ton',
-    label: 'USDT',
-    network: 'TON',
-    address: 'UQAZCnsnp-pQWIx0DH8Yk_F9-lPiWCSmxzyY9ZYUU0Mrv3lp',
-    amount: `${PRICE_USDT} USDT`,
-    color: '#0098EA',
-    badge: '',
-  },
-  {
-    id: 'ton',
-    label: 'TON',
-    network: 'TON',
-    address: 'UQAZCnsnp-pQWIx0DH8Yk_F9-lPiWCSmxzyY9ZYUU0Mrv3lp',
-    amount: 'эквивалент 49 USD',
-    color: '#0098EA',
-    badge: '',
   },
   {
     id: 'usdt-bep20',
@@ -40,7 +27,7 @@ const WALLETS = [
     network: 'BEP-20 (BSC)',
     address: '0x80730ea994388605ea0ec9af1682b2d6356568ec',
     amount: `${PRICE_USDT} USDT`,
-    color: '#F3BA2F',
+    color: USDT_COLOR,
     badge: '',
   },
   {
@@ -49,8 +36,26 @@ const WALLETS = [
     network: 'ERC-20 (Ethereum)',
     address: '0x80730ea994388605ea0ec9af1682b2d6356568ec',
     amount: `${PRICE_USDT} USDT`,
-    color: '#627EEA',
+    color: USDT_COLOR,
     badge: 'Высокая комиссия',
+  },
+  {
+    id: 'usdt-ton',
+    label: 'USDT',
+    network: 'USDT TON',
+    address: 'UQAZCnsnp-pQWIx0DH8Yk_F9-lPiWCSmxzyY9ZYUU0Mrv3lp',
+    amount: `${PRICE_USDT} USDT`,
+    color: USDT_COLOR,
+    badge: '',
+  },
+  {
+    id: 'ton',
+    label: 'TON',
+    network: 'TON',
+    address: 'UQAZCnsnp-pQWIx0DH8Yk_F9-lPiWCSmxzyY9ZYUU0Mrv3lp',
+    amount: 'эквивалент 49 USD',
+    color: TON_COLOR,
+    badge: '',
   },
   {
     id: 'btc',
@@ -58,7 +63,7 @@ const WALLETS = [
     network: 'Bitcoin',
     address: '1JHhXvuJBvFkLr74ipVnCbYv6Kt8LSuhLV',
     amount: `${PRICE_BTC} BTC`,
-    color: '#F7931A',
+    color: BTC_COLOR,
     badge: '',
   },
 ];
@@ -290,7 +295,7 @@ export function PaymentModal({ onClose }: PaymentModalProps) {
               >
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#94a3b8' }}>Чтобы ускорить</p>
                 <p className="text-sm leading-relaxed" style={{ color: 'rgba(220,228,255,0.75)' }}>
-                  Напиши нам в Telegram: <span className="font-bold" style={{ color: '#f59e0b' }}>@nero_academy_support</span>
+                  Напиши нам в Telegram: <span className="font-bold" style={{ color: '#f59e0b' }}>@nero_learning_support</span>
                   <br />
                   Укажи свой username и сеть через которую платил.
                 </p>

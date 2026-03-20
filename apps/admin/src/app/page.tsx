@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [grantingId, setGrantingId] = useState<string | null>(null);
+  const [activationUrl, setActivationUrl] = useState('');
   const [manualUsername, setManualUsername] = useState('');
   const [manualStatus, setManualStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
   const [manualMsg, setManualMsg] = useState('');
@@ -68,6 +69,7 @@ export default function AdminDashboard() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.message || `Ошибка ${res.status}`);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      if (data.activationUrl) setActivationUrl(data.activationUrl);
     } catch (err: any) {
       alert(err.message || 'Ошибка при выдаче VIP');
     }
@@ -89,6 +91,7 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error(data?.message || `Ошибка ${res.status}`);
       setManualStatus('ok');
       setManualMsg(`VIP выдан для @${manualUsername.trim()}`);
+      if (data.activationUrl) setActivationUrl(data.activationUrl);
       setManualUsername('');
     } catch (err: any) {
       setManualStatus('error');
@@ -133,6 +136,24 @@ export default function AdminDashboard() {
           Выйти
         </button>
       </header>
+
+      {/* Ссылка активации */}
+      {activationUrl && (
+        <div className="max-w-5xl mb-6 rounded-2xl p-5" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.30)' }}>
+          <p className="text-sm font-bold mb-2" style={{ color: '#34d399' }}>✓ VIP выдан — отправь эту ссылку пользователю:</p>
+          <div className="flex gap-2 items-center">
+            <code className="flex-1 text-xs bg-slate-800 rounded-lg px-3 py-2 text-white break-all">{activationUrl}</code>
+            <button
+              onClick={() => { navigator.clipboard.writeText(activationUrl); }}
+              className="shrink-0 px-3 py-2 rounded-lg text-xs font-bold"
+              style={{ background: 'rgba(52,211,153,0.20)', color: '#34d399' }}
+            >
+              Копировать
+            </button>
+          </div>
+          <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.40)' }}>Пользователь открывает ссылку — VIP активируется автоматически. Ссылка одноразовая, действует 7 дней.</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl">
 

@@ -33,6 +33,8 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   private pollTimer: NodeJS.Timeout | null = null;
   // Manual payment notifications (in-memory)
   private manualNotifications: ManualPaymentNotification[] = [];
+  // VIP activation tokens: token → courseId
+  private vipTokens = new Map<string, string>();
 
   constructor(
     private prisma: PrismaService,
@@ -126,6 +128,21 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
 
   removeManualNotification(id: string): void {
     this.manualNotifications = this.manualNotifications.filter(n => n.id !== id);
+  }
+
+  generateVipToken(courseId: string): string {
+    const token = Math.random().toString(36).slice(2, 10).toUpperCase();
+    this.vipTokens.set(token, courseId);
+    // Токен действует 7 дней
+    setTimeout(() => this.vipTokens.delete(token), 7 * 24 * 60 * 60 * 1000);
+    this.logger.log(`VIP activation token generated: ${token} for courseId=${courseId}`);
+    return token;
+  }
+
+  activateVipToken(token: string): string | null {
+    const courseId = this.vipTokens.get(token);
+    if (courseId) this.vipTokens.delete(token);
+    return courseId ?? null;
   }
 
   async grantVipByTelegramId(telegramId: string, courseId: string): Promise<void> {

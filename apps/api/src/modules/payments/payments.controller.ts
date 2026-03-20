@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Req, UseGuards, Headers, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Req, UseGuards, Headers, UnauthorizedException, Query, NotFoundException } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -56,6 +56,15 @@ export class PaymentsController {
     return this.paymentsService.getManualNotifications();
   }
 
+  /** Активация VIP по одноразовому токену (без авторизации) */
+  @Get('activate')
+  async activateVip(@Query('token') token: string) {
+    if (!token) throw new NotFoundException('Token required');
+    const courseId = this.paymentsService.activateVipToken(token);
+    if (!courseId) throw new NotFoundException('Токен недействителен или уже использован');
+    return { courseId };
+  }
+
   /** Выдать VIP по username (только для админа) */
   @Post('admin/grant-vip')
   async adminGrantVip(
@@ -74,6 +83,8 @@ export class PaymentsController {
     } else {
       throw new UnauthorizedException('username или telegramId обязателен');
     }
-    return { success: true };
+    const token = this.paymentsService.generateVipToken(body.courseId);
+    const activationUrl = `${process.env.TMA_URL || 'https://nerolearning.up.railway.app'}?vip=${token}`;
+    return { success: true, activationUrl };
   }
 }

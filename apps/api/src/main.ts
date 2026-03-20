@@ -8,6 +8,7 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3002',
     'https://nerolearning.up.railway.app',
     ...(process.env.TMA_URL ? [process.env.TMA_URL] : []),
   ];

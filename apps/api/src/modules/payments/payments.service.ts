@@ -129,10 +129,15 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async grantVipByTelegramId(telegramId: string, courseId: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { telegramId: BigInt(telegramId) },
-    });
-    if (!user) throw new NotFoundException(`Пользователь с telegramId ${telegramId} не найден`);
+    const numId = BigInt(telegramId);
+    if (numId <= 0n) throw new NotFoundException(`Telegram ID должен быть положительным числом. Личный ID всегда > 0.`);
+    let user = await this.prisma.user.findUnique({ where: { telegramId: numId } });
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: { telegramId: numId, firstName: 'User' },
+      });
+      this.logger.log(`Auto-created user for telegramId=${telegramId}`);
+    }
     await this.enrollmentsService.grantAccess(user.id, courseId, EnrollmentType.ADMIN_GRANT);
     this.logger.log(`VIP granted: telegramId=${telegramId} courseId=${courseId}`);
     try {

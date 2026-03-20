@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { apiClient } from '../services/api';
-import { AuthResponseDto } from '@neuro-academy/types';
+import { waitForTelegramSDK, getTelegramDiagnostics } from '@/lib/telegram';
+import type { AuthResponseDto } from '@neuro-academy/types';
 
 export const useAuth = () => {
   const [user, setUser] = useState<AuthResponseDto['user'] | null>(null);
@@ -10,33 +11,33 @@ export const useAuth = () => {
 
   useEffect(() => {
     const initAuth = async () => {
-      // 1. Check if we have a token in localStorage
       const savedToken = localStorage.getItem('auth_token');
-      
-      // 2. Get initData from Telegram WebApp
-      const tg = (window as any).Telegram?.WebApp;
-      const initData = tg?.initData || '';
 
-      if (!initData && !savedToken) {
+      // Wait up to 3 s for Telegram SDK (covers beforeInteractive script + TWA injection)
+      const twa = await waitForTelegramSDK(3000);
+      const initData = twa?.initData ?? '';
+
+      if (!initData) {
+        // Not in Telegram Mini App — proceed with saved token if any
+        console.warn('[Auth] initData missing. Diagnostics:', getTelegramDiagnostics());
         setLoading(false);
         return;
       }
 
-      if (!initData) {
+      if (savedToken) {
+        // Already authenticated in this session — skip re-login
         setLoading(false);
         return;
       }
 
       try {
-        const response = await apiClient.post<AuthResponseDto>('/auth/login', {
-          initData,
-        });
-
+        const response = await apiClient.post<AuthResponseDto>('/auth/login', { initData });
         const { token, user: loggedInUser } = response.data;
         localStorage.setItem('auth_token', token);
         setUser(loggedInUser);
-      } catch {
-        // Не удаляем существующий токен — он может быть ещё валидным
+      } catch (err) {
+        console.error('[Auth] Login failed:', err);
+        // Keep existing token intact — it may still be valid
       } finally {
         setLoading(false);
       }

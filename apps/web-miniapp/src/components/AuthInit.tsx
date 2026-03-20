@@ -2,16 +2,18 @@
 
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { waitForTelegramSDK } from '@/lib/telegram';
 
-/** Вызывает auth при монтировании layout — токен сохраняется в localStorage */
+/** Triggers authentication on layout mount. Runs once, result stored in localStorage. */
 export function AuthInit() {
   useAuth();
 
   useEffect(() => {
-    const tg = (window as any).Telegram?.WebApp;
-    if (!tg) return;
-    tg.ready();
-    tg.expand();
+    waitForTelegramSDK(3000).then((twa) => {
+      if (!twa) return;
+      twa.ready();
+      twa.expand();
+    });
   }, []);
 
   return null;

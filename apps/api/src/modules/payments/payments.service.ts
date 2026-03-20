@@ -1,10 +1,10 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { TelegramService } from '../telegram/telegram.service';
 import { EnrollmentType } from '@prisma/client';
 
-const PRICE_USDT = 1; // TODO: вернуть 49 после теста
+const PRICE_USDT = 49;
 const CRYPTO_PAY_API = 'https://pay.crypt.bot/api';
 const POLL_INTERVAL_MS = 30_000;
 
@@ -93,6 +93,23 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(`CryptoPay invoice created: id=${invoice.invoice_id} user=${userId}`);
 
     return invoice.pay_url as string;
+  }
+
+  async grantVipByTelegramId(telegramId: string, courseId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { telegramId: BigInt(telegramId) },
+    });
+    if (!user) throw new NotFoundException(`Пользователь с telegramId ${telegramId} не найден`);
+    await this.enrollmentsService.grantAccess(user.id, courseId, EnrollmentType.ADMIN_GRANT);
+    this.logger.log(`VIP granted: telegramId=${telegramId} courseId=${courseId}`);
+    try {
+      await this.telegramService.sendMessage(
+        telegramId,
+        `✅ *VIP-доступ активирован!*\n\nОплата получена. Все модули курса теперь открыты.\n\n📱 Открой приложение и продолжай обучение!`,
+      );
+    } catch {
+      // Telegram уведомление необязательно
+    }
   }
 
   async getPaymentStatus(userId: string, courseId: string): Promise<'completed' | 'pending'> {

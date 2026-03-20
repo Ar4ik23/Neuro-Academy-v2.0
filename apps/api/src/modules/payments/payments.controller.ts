@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Req, UseGuards, Headers, UnauthorizedException } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -32,5 +32,19 @@ export class PaymentsController {
   async webhook(@Body() payload: any) {
     const { userId, courseId, amount, currency, providerTxId } = payload;
     return this.paymentsService.processPurchase(userId, courseId, amount, currency, providerTxId);
+  }
+
+  /** Выдать VIP вручную (только для админа) */
+  @Post('admin/grant-vip')
+  async adminGrantVip(
+    @Headers('x-admin-secret') secret: string,
+    @Body() body: { telegramId: string; courseId: string },
+  ) {
+    const adminSecret = process.env.ADMIN_SECRET;
+    if (!adminSecret || secret !== adminSecret) {
+      throw new UnauthorizedException('Invalid admin secret');
+    }
+    await this.paymentsService.grantVipByTelegramId(body.telegramId, body.courseId);
+    return { success: true };
   }
 }

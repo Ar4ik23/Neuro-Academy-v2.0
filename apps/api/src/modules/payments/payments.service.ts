@@ -141,7 +141,8 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
 
   activateVipToken(token: string): string | null {
     const courseId = this.vipTokens.get(token);
-    if (courseId) this.vipTokens.delete(token);
+    // Token is reusable within its 7-day TTL (not one-time)
+    // This allows activation from both browser and Telegram Mini App
     return courseId ?? null;
   }
 

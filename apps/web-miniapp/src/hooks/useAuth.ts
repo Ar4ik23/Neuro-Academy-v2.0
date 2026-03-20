@@ -18,18 +18,17 @@ export const useAuth = () => {
       const initData = twa?.initData ?? '';
 
       if (!initData) {
-        // Not in Telegram Mini App — proceed with saved token if any
+        // Not in Telegram Mini App — use saved token if available
         console.warn('[Auth] initData missing. Diagnostics:', getTelegramDiagnostics());
+        if (savedToken) {
+          window.dispatchEvent(new Event('auth-completed'));
+        }
         setLoading(false);
         return;
       }
 
-      if (savedToken) {
-        // Already authenticated in this session — skip re-login
-        setLoading(false);
-        return;
-      }
-
+      // In Telegram — always re-authenticate with fresh initData
+      // (saved JWT may be expired; Telegram provides fresh initData every time)
       try {
         const response = await apiClient.post<AuthResponseDto>('/auth/login', { initData });
         const { token, user: loggedInUser } = response.data;
@@ -38,7 +37,10 @@ export const useAuth = () => {
         setUser(loggedInUser);
       } catch (err) {
         console.error('[Auth] Login failed:', err);
-        // Keep existing token intact — it may still be valid
+        // If re-auth failed but we had a saved token, still notify listeners
+        if (savedToken) {
+          window.dispatchEvent(new Event('auth-completed'));
+        }
       } finally {
         setLoading(false);
       }

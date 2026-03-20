@@ -15,6 +15,14 @@ interface PendingInvoice {
   telegramId: string;
 }
 
+export interface ManualPaymentNotification {
+  id: string;
+  username: string;
+  network: string;
+  courseId: string;
+  createdAt: Date;
+}
+
 @Injectable()
 export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PaymentsService.name);
@@ -22,6 +30,8 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   // key: invoiceId
   private pending = new Map<number, PendingInvoice>();
   private pollTimer: NodeJS.Timeout | null = null;
+  // Manual payment notifications (in-memory)
+  private manualNotifications: ManualPaymentNotification[] = [];
 
   constructor(
     private prisma: PrismaService,
@@ -95,6 +105,27 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     return invoice.pay_url as string;
   }
 
+  addManualNotification(username: string, network: string, courseId: string): ManualPaymentNotification {
+    const notification: ManualPaymentNotification = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      username,
+      network,
+      courseId,
+      createdAt: new Date(),
+    };
+    this.manualNotifications.unshift(notification);
+    this.logger.log(`Manual payment notification: @${username} network=${network}`);
+    return notification;
+  }
+
+  getManualNotifications(): ManualPaymentNotification[] {
+    return this.manualNotifications;
+  }
+
+  removeManualNotification(id: string): void {
+    this.manualNotifications = this.manualNotifications.filter(n => n.id !== id);
+  }
+
   async grantVipByTelegramId(telegramId: string, courseId: string): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { telegramId: BigInt(telegramId) },
@@ -105,6 +136,25 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.telegramService.sendMessage(
         telegramId,
+        `✅ *VIP-доступ активирован!*\n\nОплата получена. Все модули курса теперь открыты.\n\n📱 Открой приложение и продолжай обучение!`,
+      );
+    } catch {
+      // Telegram уведомление необязательно
+    }
+  }
+
+  async grantVipByUsername(username: string, courseId: string, notificationId?: string): Promise<void> {
+    const cleanUsername = username.replace('@', '').toLowerCase();
+    const user = await this.prisma.user.findFirst({
+      where: { username: { equals: cleanUsername, mode: 'insensitive' } },
+    });
+    if (!user) throw new NotFoundException(`Пользователь @${cleanUsername} не найден в базе. Попроси его открыть приложение через Telegram.`);
+    await this.enrollmentsService.grantAccess(user.id, courseId, EnrollmentType.ADMIN_GRANT);
+    this.logger.log(`VIP granted: username=@${cleanUsername} courseId=${courseId}`);
+    if (notificationId) this.removeManualNotification(notificationId);
+    try {
+      await this.telegramService.sendMessage(
+        user.telegramId.toString(),
         `✅ *VIP-доступ активирован!*\n\nОплата получена. Все модули курса теперь открыты.\n\n📱 Открой приложение и продолжай обучение!`,
       );
     } catch {

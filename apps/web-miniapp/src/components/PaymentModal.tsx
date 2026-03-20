@@ -80,6 +80,8 @@ export function PaymentModal({ onClose }: PaymentModalProps) {
   const [selected, setSelected] = useState<typeof WALLETS[0] | null>(null);
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [username, setUsername] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -258,16 +260,46 @@ export function PaymentModal({ onClose }: PaymentModalProps) {
                 ))}
               </div>
 
+              <div className="flex flex-col gap-2">
+                <p className="text-xs font-semibold" style={{ color: '#94a3b8' }}>Твой Telegram username</p>
+                <input
+                  type="text"
+                  placeholder="@username"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#e2e8f0',
+                  }}
+                />
+              </div>
+
               <button
-                onClick={() => setStep('sent')}
-                className="w-full py-4 rounded-2xl font-black tracking-wide active:scale-[0.98] transition-all"
+                disabled={submitting || !username.trim()}
+                onClick={async () => {
+                  if (!username.trim() || !selected) return;
+                  setSubmitting(true);
+                  try {
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+                    await fetch(`${apiUrl}/payments/notify`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username: username.trim(), network: selected.network, courseId }),
+                    });
+                  } catch { /* не критично */ }
+                  setSubmitting(false);
+                  setStep('sent');
+                }}
+                className="w-full py-4 rounded-2xl font-black tracking-wide active:scale-[0.98] transition-all disabled:opacity-40"
                 style={{
                   background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
                   color: '#1a1000',
                   boxShadow: '0 4px 20px rgba(245,158,11,0.40)',
                 }}
               >
-                Я отправил оплату →
+                {submitting ? 'Отправляем...' : 'Я отправил оплату →'}
               </button>
             </div>
           )}

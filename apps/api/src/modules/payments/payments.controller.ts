@@ -34,17 +34,44 @@ export class PaymentsController {
     return this.paymentsService.processPurchase(userId, courseId, amount, currency, providerTxId);
   }
 
-  /** Выдать VIP вручную (только для админа) */
+  /** Уведомление об оплате от пользователя (без авторизации) */
+  @Post('notify')
+  async manualNotify(@Body() body: { username: string; network: string; courseId: string }) {
+    const notification = this.paymentsService.addManualNotification(
+      body.username,
+      body.network,
+      body.courseId,
+    );
+    return { success: true, id: notification.id };
+  }
+
+  /** Список заявок на VIP (только для админа) */
+  @Get('admin/pending')
+  async adminPending(@Headers('x-admin-secret') secret: string) {
+    const adminSecret = process.env.ADMIN_SECRET;
+    if (!adminSecret || secret !== adminSecret) {
+      throw new UnauthorizedException('Invalid admin secret');
+    }
+    return this.paymentsService.getManualNotifications();
+  }
+
+  /** Выдать VIP по username (только для админа) */
   @Post('admin/grant-vip')
   async adminGrantVip(
     @Headers('x-admin-secret') secret: string,
-    @Body() body: { telegramId: string; courseId: string },
+    @Body() body: { username?: string; telegramId?: string; courseId: string; notificationId?: string },
   ) {
     const adminSecret = process.env.ADMIN_SECRET;
     if (!adminSecret || secret !== adminSecret) {
       throw new UnauthorizedException('Invalid admin secret');
     }
-    await this.paymentsService.grantVipByTelegramId(body.telegramId, body.courseId);
+    if (body.username) {
+      await this.paymentsService.grantVipByUsername(body.username, body.courseId, body.notificationId);
+    } else if (body.telegramId) {
+      await this.paymentsService.grantVipByTelegramId(body.telegramId, body.courseId);
+    } else {
+      throw new UnauthorizedException('username или telegramId обязателен');
+    }
     return { success: true };
   }
 }

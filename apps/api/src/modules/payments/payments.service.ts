@@ -145,7 +145,7 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     return courseId ?? null;
   }
 
-  async grantVipByTelegramId(telegramId: string, courseId: string): Promise<void> {
+  async grantVipByTelegramId(telegramId: string, courseId: string, activationUrl?: string): Promise<void> {
     const numId = BigInt(telegramId);
     if (numId <= 0n) throw new NotFoundException(`Telegram ID должен быть положительным числом. Личный ID всегда > 0.`);
     let user = await this.prisma.user.findUnique({ where: { telegramId: numId } });
@@ -157,17 +157,12 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     }
     await this.enrollmentsService.grantAccess(user.id, courseId, EnrollmentType.ADMIN_GRANT);
     this.logger.log(`VIP granted: telegramId=${telegramId} courseId=${courseId}`);
-    try {
-      await this.telegramService.sendMessage(
-        telegramId,
-        `✅ *VIP-доступ активирован!*\n\nОплата получена. Все модули курса теперь открыты.\n\n📱 Открой приложение и продолжай обучение!`,
-      );
-    } catch {
-      // Telegram уведомление необязательно
+    if (activationUrl) {
+      await this.telegramService.sendVipActivationMessage(telegramId, activationUrl).catch(() => {});
     }
   }
 
-  async grantVipByUsername(username: string, courseId: string, notificationId?: string): Promise<void> {
+  async grantVipByUsername(username: string, courseId: string, notificationId?: string, activationUrl?: string): Promise<void> {
     const cleanUsername = username.replace('@', '').toLowerCase();
     const user = await this.prisma.user.findFirst({
       where: { username: { equals: cleanUsername, mode: 'insensitive' } },
@@ -176,13 +171,8 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     await this.enrollmentsService.grantAccess(user.id, courseId, EnrollmentType.ADMIN_GRANT);
     this.logger.log(`VIP granted: username=@${cleanUsername} courseId=${courseId}`);
     if (notificationId) this.removeManualNotification(notificationId);
-    try {
-      await this.telegramService.sendMessage(
-        user.telegramId.toString(),
-        `✅ *VIP-доступ активирован!*\n\nОплата получена. Все модули курса теперь открыты.\n\n📱 Открой приложение и продолжай обучение!`,
-      );
-    } catch {
-      // Telegram уведомление необязательно
+    if (activationUrl) {
+      await this.telegramService.sendVipActivationMessage(user.telegramId.toString(), activationUrl).catch(() => {});
     }
   }
 

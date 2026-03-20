@@ -75,16 +75,17 @@ export class PaymentsController {
     if (!adminSecret || secret !== adminSecret) {
       throw new UnauthorizedException('Invalid admin secret');
     }
+    const token = this.paymentsService.generateVipToken(body.courseId);
+    const activationUrl = `${process.env.TMA_URL || 'https://nerolearning.up.railway.app'}?vip=${token}`;
+
     if (body.telegramId) {
-      await this.paymentsService.grantVipByTelegramId(body.telegramId, body.courseId);
+      await this.paymentsService.grantVipByTelegramId(body.telegramId, body.courseId, activationUrl);
       if (body.notificationId) this.paymentsService.removeManualNotification(body.notificationId);
     } else if (body.username) {
-      await this.paymentsService.grantVipByUsername(body.username, body.courseId, body.notificationId);
+      await this.paymentsService.grantVipByUsername(body.username, body.courseId, body.notificationId, activationUrl);
     } else {
       throw new UnauthorizedException('username или telegramId обязателен');
     }
-    const token = this.paymentsService.generateVipToken(body.courseId);
-    const activationUrl = `${process.env.TMA_URL || 'https://nerolearning.up.railway.app'}?vip=${token}`;
     return { success: true, activationUrl };
   }
 }

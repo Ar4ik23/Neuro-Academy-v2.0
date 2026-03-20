@@ -8,6 +8,7 @@ const COURSE_ID = 'ai-model-2';
 interface Notification {
   id: string;
   username: string;
+  telegramId?: string;
   network: string;
   courseId: string;
   createdAt: string;
@@ -53,10 +54,16 @@ export default function AdminDashboard() {
     const id = notificationId || username;
     setGrantingId(id);
     try {
+      const notification = notifications.find(n => n.id === notificationId);
       const res = await fetch(`${API_URL}/payments/admin/grant-vip`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-secret': savedSecret },
-        body: JSON.stringify({ username, courseId: COURSE_ID, notificationId }),
+        body: JSON.stringify({
+          username,
+          telegramId: notification?.telegramId,
+          courseId: COURSE_ID,
+          notificationId,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.message || `Ошибка ${res.status}`);
@@ -166,6 +173,12 @@ export default function AdminDashboard() {
                     <p className="text-xs text-slate-500 mt-0.5">
                       {n.network} · {new Date(n.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </p>
+                    {n.telegramId && (
+                      <p className="text-xs mt-0.5" style={{ color: '#34d399' }}>ID: {n.telegramId}</p>
+                    )}
+                    {!n.telegramId && (
+                      <p className="text-xs mt-0.5" style={{ color: '#f59e0b' }}>⚠ нет Telegram ID</p>
+                    )}
                   </div>
                   <button
                     onClick={() => handleGrantVip(n.username, n.id)}

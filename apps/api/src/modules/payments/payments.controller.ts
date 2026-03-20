@@ -36,11 +36,12 @@ export class PaymentsController {
 
   /** Уведомление об оплате от пользователя (без авторизации) */
   @Post('notify')
-  async manualNotify(@Body() body: { username: string; network: string; courseId: string }) {
+  async manualNotify(@Body() body: { username: string; telegramId?: string; network: string; courseId: string }) {
     const notification = this.paymentsService.addManualNotification(
       body.username,
       body.network,
       body.courseId,
+      body.telegramId,
     );
     return { success: true, id: notification.id };
   }
@@ -65,10 +66,11 @@ export class PaymentsController {
     if (!adminSecret || secret !== adminSecret) {
       throw new UnauthorizedException('Invalid admin secret');
     }
-    if (body.username) {
-      await this.paymentsService.grantVipByUsername(body.username, body.courseId, body.notificationId);
-    } else if (body.telegramId) {
+    if (body.telegramId) {
       await this.paymentsService.grantVipByTelegramId(body.telegramId, body.courseId);
+      if (body.notificationId) this.paymentsService.removeManualNotification(body.notificationId);
+    } else if (body.username) {
+      await this.paymentsService.grantVipByUsername(body.username, body.courseId, body.notificationId);
     } else {
       throw new UnauthorizedException('username или telegramId обязателен');
     }

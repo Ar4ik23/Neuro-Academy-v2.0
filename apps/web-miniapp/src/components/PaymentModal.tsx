@@ -81,7 +81,19 @@ export function PaymentModal({ onClose, courseId }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [username, setUsername] = useState('');
+  const [telegramId, setTelegramId] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Автоматически получаем telegramId если открыто в Telegram
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const twa = (window as any).Telegram?.WebApp;
+      const id = twa?.initDataUnsafe?.user?.id;
+      if (id) setTelegramId(String(id));
+      const uname = twa?.initDataUnsafe?.user?.username;
+      if (uname) setUsername(uname);
+    }
+  }, []);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -260,24 +272,35 @@ export function PaymentModal({ onClose, courseId }: PaymentModalProps) {
                 ))}
               </div>
 
-              <div className="flex flex-col gap-2">
-                <p className="text-xs font-semibold" style={{ color: '#94a3b8' }}>Твой Telegram username</p>
-                <input
-                  type="text"
-                  placeholder="@username"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    color: '#e2e8f0',
-                  }}
-                />
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-xs font-semibold" style={{ color: '#94a3b8' }}>Твой Telegram username</p>
+                  <input
+                    type="text"
+                    placeholder="@username"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0' }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-xs font-semibold" style={{ color: '#94a3b8' }}>
+                    Твой Telegram ID{telegramId ? ' (определён автоматически)' : ' — узнай у @userinfobot'}
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="например: 123456789"
+                    value={telegramId}
+                    onChange={e => setTelegramId(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl text-sm outline-none font-mono"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${telegramId ? 'rgba(52,211,153,0.40)' : 'rgba(255,255,255,0.12)'}`, color: '#e2e8f0' }}
+                  />
+                </div>
               </div>
 
               <button
-                disabled={submitting || !username.trim()}
+                disabled={submitting || (!username.trim() && !telegramId.trim())}
                 onClick={async () => {
                   if (!username.trim() || !selected) return;
                   setSubmitting(true);
@@ -286,7 +309,7 @@ export function PaymentModal({ onClose, courseId }: PaymentModalProps) {
                     await fetch(`${apiUrl}/payments/notify`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ username: username.trim(), network: selected.network, courseId }),
+                      body: JSON.stringify({ username: username.trim(), telegramId: telegramId.trim(), network: selected.network, courseId }),
                     });
                   } catch { /* не критично */ }
                   setSubmitting(false);

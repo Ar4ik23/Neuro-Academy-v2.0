@@ -18,6 +18,7 @@ interface PendingInvoice {
 export interface ManualPaymentNotification {
   id: string;
   username: string;
+  telegramId?: string;
   network: string;
   courseId: string;
   createdAt: Date;
@@ -105,10 +106,11 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     return invoice.pay_url as string;
   }
 
-  addManualNotification(username: string, network: string, courseId: string): ManualPaymentNotification {
+  addManualNotification(username: string, network: string, courseId: string, telegramId?: string): ManualPaymentNotification {
     const notification: ManualPaymentNotification = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       username,
+      telegramId,
       network,
       courseId,
       createdAt: new Date(),

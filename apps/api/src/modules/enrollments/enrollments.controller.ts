@@ -1,19 +1,19 @@
-import { Controller, Get, Param, Req } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { EnrollmentsService } from './enrollments.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('enrollments')
+@UseGuards(JwtAuthGuard)
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
   @Get()
   async getMyEnrollments(@Req() req: any) {
-    const userId = req.user.sub;
-    return this.enrollmentsService.getUserEnrollments(userId);
+    return this.enrollmentsService.getUserEnrollments(req.user.id);
   }
 
   @Get('check/:courseId')
   async check(@Req() req: any, @Param('courseId') courseId: string) {
-    const userId = req.user.sub;
-    return { hasAccess: await this.enrollmentsService.checkAccess(userId, courseId) };
+    return { hasAccess: await this.enrollmentsService.checkAccess(req.user.id, courseId) };
   }
 }

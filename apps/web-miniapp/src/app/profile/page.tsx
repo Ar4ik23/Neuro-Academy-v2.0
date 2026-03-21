@@ -17,14 +17,6 @@ function formatDate(iso: string): string {
     ' · ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
 
-// ── SVG Icons (consistent style: stroke, #818cf8) ────────────────────────────
-const IC = '#818cf8';
-const IcBook  = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={IC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
-const IcZap   = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={IC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
-const IcPen   = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={IC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>;
-const IcAward = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={IC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>;
-const IcChart = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={IC} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
-
 // ── Stats Widget ─────────────────────────────────────────────────────────────
 function StatsWidget({ isVip }: { isVip: boolean }) {
   const [lessonsCount, setLessonsCount] = useState(0);
@@ -54,10 +46,10 @@ function StatsWidget({ isVip }: { isVip: boolean }) {
   }, []);
 
   const stats = [
-    { icon: <IcBook />,  label: 'Уроков пройдено', value: lessonsCount, color: '#818cf8' },
-    { icon: <IcZap />,   label: 'Дней в фокусе',   value: modulesCount, color: '#f97316' },
-    { icon: <IcPen />,   label: 'Заметок записано', value: notesCount,   color: '#f59e0b' },
-    { icon: <IcAward />, label: 'Экзамен', value: examPassed ? 'Сдан' : '—', color: examPassed ? '#34d399' : 'rgba(190,200,235,0.40)' },
+    { icon: '📚', label: 'Уроков пройдено', value: lessonsCount, color: '#818cf8' },
+    { icon: '🔥', label: 'Дней в фокусе', value: modulesCount, color: '#f97316' },
+    { icon: '✏️', label: 'Заметок записано', value: notesCount, color: '#f59e0b' },
+    { icon: '🏆', label: 'Экзамен', value: examPassed ? 'Сдан' : '—', color: examPassed ? '#34d399' : 'rgba(190,200,235,0.40)' },
   ];
 
   return (
@@ -71,7 +63,7 @@ function StatsWidget({ isVip }: { isVip: boolean }) {
         </div>
         <div className="w-8 h-8 rounded-xl flex items-center justify-center"
           style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)' }}>
-          <IcChart />
+          <span className="text-sm">📊</span>
         </div>
       </div>
 
@@ -85,7 +77,7 @@ function StatsWidget({ isVip }: { isVip: boolean }) {
               borderRight: i % 2 === 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
               borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
             }}>
-            <div className="flex items-center justify-center">{icon}</div>
+            <span className="text-base leading-none">{icon}</span>
             <p className="text-lg font-black leading-tight mt-1" style={{ color }}>{value}</p>
             <p className="text-[10px] leading-tight" style={{ color: 'rgba(190,200,235,0.45)' }}>{label}</p>
           </div>
@@ -617,7 +609,7 @@ function NotesContent({ notes, onDelete, onAdd, onClose }: {
       <div className="flex items-center gap-3 p-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <div className="w-8 h-8 rounded-xl flex items-center justify-center"
           style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
-          <IcPen />
+          <span className="text-sm">✏️</span>
         </div>
         <div className="flex-1">
           <p className="text-sm font-black" style={{ color: '#e2e8f0' }}>Мои заметки</p>
@@ -653,7 +645,7 @@ function NotesContent({ notes, onDelete, onAdd, onClose }: {
       <div className="flex-1 overflow-y-auto flex flex-col gap-2 p-3">
         {notes.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-center">
-            <div className="opacity-20"><IcPen /></div>
+            <span className="text-3xl opacity-20">✏️</span>
             <p className="text-xs" style={{ color: '#475569' }}>Напиши свою первую заметку выше</p>
           </div>
         ) : (
@@ -718,7 +710,7 @@ function NotesWidget() {
         <div className="flex items-center gap-3 p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
-            <IcPen />
+            <span className="text-sm">✏️</span>
           </div>
           <div className="flex-1">
             <p className="text-sm font-black" style={{ color: '#e2e8f0' }}>Мои заметки</p>
@@ -745,7 +737,7 @@ function NotesWidget() {
             </div>
           ) : (
             <div className="flex items-center gap-2" style={{ color: 'rgba(220,228,255,0.30)' }}>
-              <IcPen />
+              <span className="text-sm">✏️</span>
               <span className="text-sm">Написать первую заметку...</span>
             </div>
           )}

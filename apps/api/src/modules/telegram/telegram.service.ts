@@ -29,7 +29,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
 
     // Регистрируем команды
     await this.bot.telegram.setMyCommands([
-      { command: 'start', description: 'Открыть Nero' },
+      { command: 'start', description: 'Открыть Franklin Learning' },
       { command: 'app',   description: 'Mini App' },
       { command: 'help',  description: 'Помощь' },
     ]).catch((e: any) => this.logger.warn(`setMyCommands failed: ${e?.message}`));
@@ -68,7 +68,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
           parse_mode: 'MarkdownV2',
           reply_markup: {
             inline_keyboard: [
-              [{ text: '📱 Открыть Nero Academy', web_app: { url: activationUrl } }],
+              [{ text: '🎓 Открыть Franklin Learning — VIP активирован!', web_app: { url: activationUrl } }],
             ],
           },
         },
@@ -95,7 +95,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
         body: JSON.stringify({
           menu_button: {
             type: 'web_app',
-            text: '📱 Открыть Nero',
+            text: '📱 Открыть Franklin Learning',
             web_app: { url: tmaUrl },
           },
         }),
@@ -116,13 +116,13 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       const name = ctx.from?.first_name ?? 'студент';
       return ctx.reply(
         `Привет, ${name}! 👋\n\n` +
-        `🎓 *Nero* — платформа для обучения заработку на AI-моделях.\n\n` +
+        `🎓 *Franklin Learning* — платформа для обучения заработку на AI-моделях.\n\n` +
         `Нажми кнопку 📱 рядом с полем ввода или кнопку ниже:`,
         {
           parse_mode: 'Markdown',
           reply_markup: {
             inline_keyboard: [
-              [{ text: '📱 Открыть Nero', web_app: { url: tmaUrl } }],
+              [{ text: '📱 Открыть Franklin Learning', web_app: { url: tmaUrl } }],
             ],
           },
         },
@@ -132,7 +132,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     this.bot.command('app', (ctx) =>
       ctx.reply('Открой приложение:', {
         reply_markup: {
-          inline_keyboard: [[{ text: '📱 Nero', web_app: { url: tmaUrl } }]],
+          inline_keyboard: [[{ text: '📱 Franklin Learning', web_app: { url: tmaUrl } }]],
         },
       }),
     );

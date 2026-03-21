@@ -85,7 +85,7 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
       body: JSON.stringify({
         asset: 'USDT',
         amount: String(PRICE_USDT),
-        description: 'VIP-доступ к курсу Neuro Academy',
+        description: 'VIP-доступ к курсу Franklin Learning',
         payload: `${userId}:${courseId}:${telegramId}`,
         allow_comments: false,
         allow_anonymous: false,

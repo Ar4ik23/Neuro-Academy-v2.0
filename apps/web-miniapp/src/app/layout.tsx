@@ -12,7 +12,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
-  title: "Neuro Academy | TWA",
+  title: "Franklin Learning | TWA",
   description: "Advanced Cognitive Training Platform",
 };
 
@@ -80,7 +80,7 @@ export default function RootLayout({
             }}
           >
             <div className="text-[10px] font-black tracking-[0.2em] text-[#f59e0b] uppercase">
-              Nero Learning
+              Franklin Learning
             </div>
             <VipBadge />
           </header>

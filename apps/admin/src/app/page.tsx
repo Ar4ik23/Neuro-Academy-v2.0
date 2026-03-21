@@ -110,7 +110,7 @@ export default function AdminDashboard() {
         <form onSubmit={handleLogin} className="w-full max-w-sm flex flex-col gap-4">
           <div>
             <h1 className="text-2xl font-black text-white">Admin Panel</h1>
-            <p className="text-slate-500 text-sm mt-1">Neuro Academy</p>
+            <p className="text-slate-500 text-sm mt-1">Franklin Learning</p>
           </div>
           <input
             type="password"
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       <header className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-black text-white">Admin Panel</h1>
-          <p className="text-slate-500 text-sm">Neuro Academy · обновляется каждые 15 сек</p>
+          <p className="text-slate-500 text-sm">Franklin Learning · обновляется каждые 15 сек</p>
         </div>
         <button
           onClick={() => { setAuthed(false); setSavedSecret(''); setSecret(''); }}

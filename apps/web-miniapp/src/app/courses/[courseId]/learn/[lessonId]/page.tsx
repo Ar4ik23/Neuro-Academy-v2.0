@@ -440,7 +440,7 @@ function ModuleCompleteScreen({ onNext }: { onNext: () => void }) {
         className="mt-6 rounded-2xl p-4 w-full"
         style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.20)' }}
       >
-        <p className="text-[#f59e0b] text-xs font-semibold uppercase tracking-wider">🤖 Nero</p>
+        <p className="text-[#f59e0b] text-xs font-semibold uppercase tracking-wider">🤖 Franklin</p>
         <p className="text-[#e2e8f0] text-sm mt-2 leading-relaxed">Ты справился. Продолжай в том же темпе!</p>
       </div>
       <button
@@ -656,7 +656,7 @@ export default function LessonPage() {
                 cursor: 'pointer',
               }}
             >
-              Спросить у Nero
+              Спросить у Franklin
             </button>
             <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.15)' }} />
             <button

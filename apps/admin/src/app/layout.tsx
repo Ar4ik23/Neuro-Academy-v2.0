@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Admin Panel — Neuro Academy",
+  title: "Admin Panel — Franklin Learning",
 };
 
 export default function RootLayout({

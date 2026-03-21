@@ -548,7 +548,7 @@ export default function CourseLearnPage() {
               <h2 className="text-[#e2e8f0] text-xl font-bold">{mod?.emoji} {mod?.title}</h2>
               <p className="text-[#94a3b8] text-sm mt-2 leading-relaxed">Отлично! Ты прошёл этот модуль.</p>
               <div className="mt-4 rounded-2xl p-3 w-full text-left" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.20)' }}>
-                <p className="text-[#f59e0b] text-xs font-semibold">🤖 Nero</p>
+                <p className="text-[#f59e0b] text-xs font-semibold">🤖 Franklin</p>
                 <p className="text-[#e2e8f0] text-sm mt-1">Продолжай в том же темпе! Следующий модуль уже открыт.</p>
               </div>
               {nextModule && (

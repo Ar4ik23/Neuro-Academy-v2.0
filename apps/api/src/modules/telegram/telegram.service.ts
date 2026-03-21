@@ -60,30 +60,18 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn('Bot not initialized — cannot send message');
       return;
     }
-    try {
-      await this.bot.telegram.sendMessage(
-        telegramId.toString(),
-        `✅ *VIP-доступ активирован\\!*\n\nОплата получена\\. Все модули курса теперь открыты\\.\n\n👇 Нажми кнопку ниже чтобы открыть приложение:`,
-        {
-          parse_mode: 'MarkdownV2',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '🎓 Открыть Franklin Learning — VIP активирован!', web_app: { url: activationUrl } }],
-            ],
-          },
+    await this.bot.telegram.sendMessage(
+      telegramId.toString(),
+      `✅ *VIP-доступ активирован!*\n\nВсе модули курса теперь открыты.\n\n👇 Нажми кнопку ниже чтобы открыть приложение:`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🎓 Открыть Franklin Learning — VIP активирован!', web_app: { url: activationUrl } }],
+          ],
         },
-      );
-    } catch (e: any) {
-      this.logger.error(`sendVipActivationMessage failed for ${telegramId}: ${e?.message}`);
-      // Fallback to plain message
-      try {
-        await this.bot.telegram.sendMessage(
-          telegramId.toString(),
-          `✅ *VIP-доступ активирован!*\n\nОплата получена. Все модули курса теперь открыты.\n\nОткрой приложение через бота: ${activationUrl}`,
-          { parse_mode: 'Markdown' },
-        );
-      } catch { /* ignore */ }
-    }
+      },
+    );
   }
 
   // Прямой HTTP вызов Bot API — обходит возможные проблемы Telegraf обёртки

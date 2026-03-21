@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { QRCodeSVG } from 'qrcode.react';
 
 const PRICE_USDT = 49;
 const PRICE_BTC = '0.00049'; // ~49 USD at ~100k rate
@@ -224,6 +225,19 @@ export function PaymentModal({ onClose, courseId }: PaymentModalProps) {
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#94a3b8' }}>
                   Адрес кошелька
                 </p>
+                {/* QR-код */}
+                <div className="flex justify-center py-2">
+                  <div className="rounded-2xl p-3" style={{ background: '#ffffff' }}>
+                    <QRCodeSVG
+                      value={selected.address}
+                      size={160}
+                      fgColor="#0a0a0a"
+                      bgColor="#ffffff"
+                      level="M"
+                    />
+                  </div>
+                </div>
+
                 <div
                   className="rounded-xl p-3 break-all text-xs font-mono leading-relaxed"
                   style={{ background: 'rgba(0,0,0,0.30)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.06)' }}
